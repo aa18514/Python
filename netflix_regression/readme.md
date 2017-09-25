@@ -4,7 +4,7 @@ L2 regularization is used to reduce overfitting (https://en.wikipedia.org/wiki/O
 the dataset consits of 671 users and 9066 movies <br> 
 all the data exists in the subdirectory "\movie-data" <br>
 x, the feature vector is d + 1 dimension vector where d = 16 <br> 
-y^, the target function is the expected rating <br> 
+y^, the predictor function is the expected rating <br> 
 the loss function in this case is taken to be mean squared error between the predictor and the target function <br> 
 training data(x[1:,]) is normalized to zero mean and unit variance, the same parameters are used to normalize the test data set <br>
 x[0] = 1 <br> 
