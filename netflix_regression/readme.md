@@ -4,12 +4,13 @@ use verbosity (-v/-vv/-vvv) to switch between naive linear regression, regressio
 features with regularization <br> 
 ## Dataset 
 Dataset consits of 671 users and 9066 movies <br> 
-all the data exists in the subdirectory "\movie-data" <br>
+All the data exists in the subdirectory "\movie-data" <br>
 ## Input features
 The input features originally have a dimension of d + 1 where d = 16 and in this case x[0] = 1 <br> 
 x[0] is used for the constant offset term, the rest of the terms represent different movie genres <br> 
-## Output features
-The predictor function, y_hat represents the expected rating <br> 
+## Output 
+The predictor function, y_hat represents the expected rating <br>
+The target function, y represents the actual rating <br> 
 ## Stratagies
 ### Prepocessing the input features
 training data(x[1:,]) is normalized to zero mean and unit variance, the same parameters are used to normalize the test data set <br>
