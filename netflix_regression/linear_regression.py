@@ -144,7 +144,7 @@ def linear_regression_with_regularization(movie_features, train_ratings, values_
 		plt.plot(K, average_errors)
 		plt.xlabel('K')
 		plt.ylabel('average test error')
-		plt.title('average test error against K')	
+		plt.title('cross validation error against K')	
 		plt.show()
 		minimum = np.argmin(average_errors)
 		return final_weights[minimum], train_errors[minimum], compute_test_error(test_ratings, movie_features, weight)
