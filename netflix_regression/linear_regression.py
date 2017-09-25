@@ -12,26 +12,28 @@ mean = -1
 
 def compute_error(weights, test_ratings, movie_features): 
 	expected_ratings = np.dot(weights, np.array(movie_features).T)
-	expected_ratings[expected_ratings < 0.25]  = 0.00
-	expected_ratings[expected_ratings >= 0.25] = 0.50
-	expected_ratings[expected_ratings < 0.75]  = 0.50
-	expected_ratings[expected_ratings >= 0.75] = 1.00
-	expected_ratings[expected_ratings < 1.25]  = 1.00
-	expected_ratings[expected_ratings >= 1.25] = 1.50 
-	expected_ratings[expected_ratings < 1.75]  = 1.50
-	expected_ratings[expected_ratings >= 1.75] = 2.00
-	expected_ratings[expected_ratings < 2.25]  = 2.00
-	expected_ratings[expected_ratings >= 2.25] = 2.50 
-	expected_ratings[expected_ratings < 2.75] =  2.50
-	expected_ratings[expected_ratings >= 2.75] = 3.00 
-	expected_ratings[expected_ratings < 3.25]  = 3.00
-	expected_ratings[expected_ratings >= 3.25] = 3.50 
-	expected_ratings[expected_ratings < 3.75]  = 3.50
-	expected_ratings[expected_ratings >= 3.75] = 4.00
-	expected_ratings[expected_ratings < 4.25] = 4.00
-	expected_ratings[expected_ratings >= 4.25] = 4.50
-	expected_ratings[expected_ratings < 4.75] = 4.50
-	expected_ratings[expected_ratings >= 5.00] = 5.00
+	expected_ratings[np.where(expected_ratings < 0.25)]  = 0.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 0.25, expected_ratings <= 0.50))]  = 0.50
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 0.50, expected_ratings < 0.75))]  = 0.50
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 0.75, expected_ratings <= 1.00))]  = 1.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 1.00, expected_ratings < 1.25))]  = 1.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 1.25, expected_ratings <= 1.50))]  = 1.50
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 1.50, expected_ratings < 1.75))]  = 1.50
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 1.75, expected_ratings <= 2.00))]  = 2.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 2.00, expected_ratings < 2.25))]  = 2.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 2.25, expected_ratings < 2.50))]  = 2.50
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 2.50, expected_ratings < 2.75))]  = 2.50
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 2.75, expected_ratings < 3.00))]  = 3.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 3.00, expected_ratings < 3.25))]  = 3.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 3.50, expected_ratings < 3.75))]  = 3.50
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 3.25, expected_ratings <= 3.50))]  = 3.50
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 4.00, expected_ratings < 4.25))]  = 4.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 3.75, expected_ratings <= 4.00))]  = 4.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 4.00, expected_ratings < 4.25))] = 4.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 4.25, expected_ratings <= 4.50))]  = 4.50
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 4.50, expected_ratings <= 4.75))]  = 4.50
+	
+	expected_ratings[np.where(expected_ratings >= 4.75)] = 5.00
 	return(np.sum((expected_ratings - test_ratings)**2)/len(test_ratings))
 
 def standardize(movie_features, dataset):
@@ -131,7 +133,7 @@ def linear_regression_with_regularization(movie_features, train_ratings, values_
 	and non -linear transformation """
 	if(args.verbose == 1): 
 		average_errors = []
-		K = [2, 3, 4, 5]
+		K = [2, 3, 4, 5, 6]
 		train_errors = []
 		final_weights = []
 		for k_val in K: 
@@ -147,7 +149,8 @@ def linear_regression_with_regularization(movie_features, train_ratings, values_
 		minimum = np.argmin(average_errors)
 		return final_weights[minimum], train_errors[minimum], compute_test_error(test_ratings, movie_features, weight)
 	else: 
-		return compute_train_error(train_ratings, movie_features, "lin_reg"), compute_test_error(test_ratings, movie_features, weight)
+		weight, train_error = compute_train_error(train_ratings, movie_features, "lin_reg")
+		return weight, train_error, compute_test_error(test_ratings, movie_features, weight)
 
 def read_from_file(filename):
 	res = []  
