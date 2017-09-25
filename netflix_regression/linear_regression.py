@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import scipy 
 from sklearn import linear_model
-from sklearn import decomposition
 import math
 import argparse
 import textwrap
@@ -32,7 +31,6 @@ def compute_error(weights, test_ratings, movie_features):
 	expected_ratings[np.where(np.logical_and(expected_ratings >= 4.00, expected_ratings < 4.25))] = 4.00
 	expected_ratings[np.where(np.logical_and(expected_ratings >= 4.25, expected_ratings <= 4.50))]  = 4.50
 	expected_ratings[np.where(np.logical_and(expected_ratings >= 4.50, expected_ratings <= 4.75))]  = 4.50
-	
 	expected_ratings[np.where(expected_ratings >= 4.75)] = 5.00
 	return(np.sum((expected_ratings - test_ratings)**2)/len(test_ratings))
 
@@ -131,7 +129,7 @@ def linear_regression_with_regularization(movie_features, train_ratings, values_
 	regression for each user, 
 	linear regression with regularization, 
 	and non -linear transformation """
-	if(args.verbose == 1): 
+	if(args.verbose == 1 or args.verbose == 3): 
 		average_errors = []
 		K = [2, 3, 4, 5, 6]
 		train_errors = []
@@ -152,7 +150,7 @@ def linear_regression_with_regularization(movie_features, train_ratings, values_
 		weight, train_error = compute_train_error(train_ratings, movie_features, "lin_reg")
 		return weight, train_error, compute_test_error(test_ratings, movie_features, weight)
 
-def read_from_file(filename):
+def read_from_file(filename, args):
 	res = []  
 	with open(filename, "r") as csvreader: 
 		csvreader.readline()
@@ -161,10 +159,15 @@ def read_from_file(filename):
 			line = result[i].strip('\n')
 			temp = line.split(",")
 			res.append([float(i) for i in temp])
+			if(filename == "movie-data\\movie-features.csv" and args.verbose == 3):
+				len_movie_features = len(res[-1])
+				for p in range(1, len_movie_features):
+					for j in range(p, len_movie_features): 
+						res[-1].append(float(res[-1][p] * res[-1][j])) 
 		return res
 
-def regression_analysis(regularization_constants, movie_features, train_ratings, test_ratings, args):
-	weights, error, error_test = linear_regression_with_regularization(movie_features, train_ratings, regularization_constants, test_ratings, args)
+def regression_analysis(movie_features, train_ratings, test_ratings, args):
+	weights, error, error_test = linear_regression_with_regularization(movie_features, train_ratings, np.logspace(-4, 0, 50), test_ratings, args)
 	plt.xlabel("users")
 	plt.ylabel("squared error")
 	t = np.arange(0., len(error_test), 1) 
@@ -191,9 +194,8 @@ if __name__ == "__main__":
 	)
 	parser.add_argument('-v', '--verbose', action="count", help = "used to switch between linear regression with and w/o cross_validation")
 	args = parser.parse_args()
-	movie_features = read_from_file("movie-data\\movie-features.csv")
-	test_ratings   = read_from_file("movie-data\\ratings-test.csv")
-	train_ratings  = read_from_file("movie-data\\ratings-train.csv")
-	regularization_constants = np.logspace(-4, 0, 50)
-	if(args.verbose == 1 or args.verbose == 2): 
-		regression_analysis(regularization_constants, movie_features, train_ratings, test_ratings, args)
+	movie_features = read_from_file("movie-data\\movie-features.csv", args)
+	test_ratings   = read_from_file("movie-data\\ratings-test.csv", args)
+	train_ratings  = read_from_file("movie-data\\ratings-train.csv", args)
+	if(args.verbose != 0): 
+		regression_analysis(movie_features, train_ratings, test_ratings, args)
