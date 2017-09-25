@@ -1,5 +1,8 @@
 # ridge regression - netflix dataset
-use verbosity (-v/-vv) to switch between naive linear regression and regression with L2 regularization
+use verbosity (-v/-vv) to switch between naive linear regression and regression with L2 regularization <br> 
+training data is normalized to zero mean and unit variance, the same parameters are used to normalize the test data set <br> 
+all of the expected ratings are quantized to the nearest 0.5 <br>
+
 ## Results
 ### cross validation error against K
 ![Alt text](https://github.com/aa18514/Python/blob/master/netflix_regression/cross_validation_error.png "Cross Validation Error versus K") <br>
