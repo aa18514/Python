@@ -179,13 +179,14 @@ def regression_analysis(regularization_constants, movie_features, train_ratings,
 if __name__ == "__main__": 
 	parser = argparse.ArgumentParser(
 			formatter_class=argparse.RawDescriptionHelpFormatter,
-			description = textwrap.dedent('''\
-											netflix dataset for 671 users and 9066 movies
-											all data is stored in csv files in the sub-directory /movie-data
-										 	all expected ratings are quantised to the nearest 0.5
-										 	use -v to enable linear regression with cross fold validation
-										 	use --v to enable naive linear regression
-										 ''')
+			description = textwrap.dedent
+			('''\
+					netflix dataset for 671 users and 9066 movies
+					all data is stored in csv files in the sub-directory /movie-data
+					all expected ratings are quantised to the nearest 0.5
+					use -v to enable linear regression with cross fold validation
+					use --v to enable naive linear regression
+			''')
 
 	)
 	parser.add_argument('-v', '--verbose', action="count", help = "used to switch between linear regression with and w/o cross_validation")

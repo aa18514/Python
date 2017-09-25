@@ -1,5 +1,7 @@
 # ridge regression - netflix dataset
 use verbosity (-v/-vv) to switch between naive linear regression and regression with L2 regularization <br> 
+the dataset consits of 671 users and 9066 movies <br> 
+all the data exists in the subdirectory "\movie-data" <br>
 training data is normalized to zero mean and unit variance, the same parameters are used to normalize the test data set <br> 
 all of the expected ratings are quantized to the nearest 0.5 <br>
 
