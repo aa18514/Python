@@ -5,6 +5,7 @@ from sklearn import linear_model
 import math
 import argparse
 import textwrap
+from multiprocessing.dummy import Pool as ThreadPool
 
 variance = -1
 mean = -1
@@ -58,7 +59,7 @@ def train_dataset(features, ratings, lambd_val):
 	return clf.coef_
 
 def k_fold_algorithm(movie_ratings, res, values_of_lambda, K):
-	errors = [] 
+	errors = []
 	for value in values_of_lambda:
 		error = 0
 		limit = 0
@@ -123,34 +124,38 @@ def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwarg
 		train_error.append(compute_error(weight[-1], np.array(train_res)[:,2], train_movie_ratings))
 	return weight, train_error
 
-def linear_regression_with_regularization(movie_features, train_ratings, values_of_lambda, test_ratings, args):
+def func(k): 
+	train_ratings  = read_from_file("movie-data\\ratings-train.csv")
+	movie_features = read_from_file("movie-data\\movie-features.csv")
+	values_of_lambda = np.logspace(-4, 0, 50)
+	weight, train_error = compute_train_error(train_ratings, movie_features, "k_fold", values_of_lambda, k)
+	return (np.mean(train_error), train_error, weight)
+
+def linear_regression_with_regularization(test_ratings, args):
 	"""a total of 671 users, 700003 movies.
 	the function handles linear
 	regression for each user, 
 	linear regression with regularization, 
 	and non -linear transformation """
 	if(args.verbose == 1 or args.verbose == 3): 
-		average_errors = []
-		K = [2, 3, 4, 5, 6]
-		train_errors = []
-		final_weights = []
-		for k_val in K: 
-			weight, train_error = compute_train_error(train_ratings, movie_features, "k_fold", values_of_lambda, k_val)
-			final_weights.append(weight)
-			train_errors.append(train_error)
-			average_errors.append(np.mean(train_error))
-		plt.plot(K, average_errors)
+		pool = ThreadPool(4)
+		results = pool.map(func, [2, 3, 4, 5])
+		average_errors = list(list(zip(*results))[0])
+		train_errors = list(list(zip(*results))[1])
+		final_weights = list(list(zip(*results))[2])
+		plt.plot([2, 3, 4, 5], average_errors)
 		plt.xlabel('K')
 		plt.ylabel('average test error')
 		plt.title('cross validation error against K')	
 		plt.show()
 		minimum = np.argmin(average_errors)
-		return final_weights[minimum], train_errors[minimum], compute_test_error(test_ratings, movie_features, weight)
+		movie_features = read_from_file("movie-data\\movie-features.csv")
+		return train_errors[minimum], compute_test_error(test_ratings, movie_features, final_weights[minimum])
 	else: 
 		weight, train_error = compute_train_error(train_ratings, movie_features, "lin_reg")
-		return weight, train_error, compute_test_error(test_ratings, movie_features, weight)
+		return train_error, compute_test_error(test_ratings, movie_features, weight)
 
-def read_from_file(filename, args):
+def read_from_file(filename):
 	res = []  
 	with open(filename, "r") as csvreader: 
 		csvreader.readline()
@@ -159,24 +164,22 @@ def read_from_file(filename, args):
 			line = result[i].strip('\n')
 			temp = line.split(",")
 			res.append([float(i) for i in temp])
-			if(filename == "movie-data\\movie-features.csv" and args.verbose == 3):
-				len_movie_features = len(res[-1])
-				for p in range(1, len_movie_features):
-					for j in range(p, len_movie_features): 
-						res[-1].append(float(res[-1][p] * res[-1][j])) 
+			#if(filename == "movie-data\\movie-features.csv" and args.verbose == 3):
+			#	len_movie_features = len(res[-1])
+			#	for p in range(1, len_movie_features):
+			#		for j in range(p, len_movie_features): 
+			#			res[-1].append(float(res[-1][p] * res[-1][j])) 
 		return res
 
-def regression_analysis(movie_features, train_ratings, test_ratings, args):
-	weights, error, error_test = linear_regression_with_regularization(movie_features, train_ratings, np.logspace(-4, 0, 50), test_ratings, args)
+def regression_analysis(test_ratings, args):
+	error_train, error_test = linear_regression_with_regularization(test_ratings, args)
 	plt.xlabel("users")
 	plt.ylabel("squared error")
-	t = np.arange(0., len(error_test), 1) 
-	plt.plot(t, error_test)
-	t = np.arange(0., len(error), 1)
-	plt.plot(t, error)
+	plt.plot(np.arange(0., len(error_test), 1), error_test)
+	plt.plot(np.arange(0., len(error_train), 1), error_train)
 	plt.show()
-	print("train error: %f" % (np.mean(error)))
-	print("test error: %f" % (np.mean(error_test)))
+	print("train error: %f" % (np.mean(error_train)))
+	print("test error: %f"  % (np.mean(error_test)))
 
 
 if __name__ == "__main__": 
@@ -194,8 +197,6 @@ if __name__ == "__main__":
 	)
 	parser.add_argument('-v', '--verbose', action="count", help = "used to switch between linear regression with and w/o cross_validation")
 	args = parser.parse_args()
-	movie_features = read_from_file("movie-data\\movie-features.csv", args)
-	test_ratings   = read_from_file("movie-data\\ratings-test.csv", args)
-	train_ratings  = read_from_file("movie-data\\ratings-train.csv", args)
+	test_ratings   = read_from_file("movie-data\\ratings-test.csv")
 	if(args.verbose != 0): 
-		regression_analysis(movie_features, train_ratings, test_ratings, args)
+		regression_analysis(test_ratings, args)
