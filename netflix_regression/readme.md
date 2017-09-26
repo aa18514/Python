@@ -17,6 +17,7 @@ training data(x[1:,]) is normalized to zero mean and unit variance, the same par
 ### Controlling Overfitting
 L2 regularization is used to reduce overfitting (https://en.wikipedia.org/wiki/Overfitting) and improve test accuracy <br> 
 the loss function in this case is taken to be L2 norm (Euclidean length between the predictor and the target) <br> 
+Added support for the multi-processing module to parallelize against different values of K respectively <br> 
 ### Applying non-linear transformation
 the non-linear transformation is taken to be each genre multiplied with the rest of the genres in the dataset. <br> 
 the original features remain unchanged, the transformed features are appended to the original feature vector <br>
