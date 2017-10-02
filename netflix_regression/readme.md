@@ -30,9 +30,13 @@ This yields a new dimension vector with a dimension of 190 <br>
 ### cross validation error against K
 
 ![Alt text](https://github.com/aa18514/Python/blob/master/netflix_regression/cross_validation_error.png "Cross Validation Error versus K") <br> 
-We have cross validated against each userThe model performs well when K = 3
-<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/test_train_error.png" width="200" height="200" />
-![alt-text-1](https://github.com/aa18514/Python/blob/master/netflix_regression/test_train_error.png "training/test error for each User" | width = 100 ) ![alt-text-2](https://github.com/aa18514/Python/blob/master/netflix_regression/regression_without_regularization.png "training/test error for each User") <br> 
+We have cross validated against each userThe model performs well when K = 3 for non-transformed features
+<br>
+<div>
+	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/test_train_error.png" width="200" height="200" />
+	<img src=" https://github.com/aa18514/Python/blob/master/netflix_regression/test_train_error.png "training/test error for each User" width="500" height = "500" /> 
+</div> 
+<br>
 mean test error: 1.454327 <br> 
 mean train error: 0.540168 <br>
 mean test error: 1.496136 <br>
