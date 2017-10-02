@@ -114,7 +114,7 @@ def func(k):
 
 def linear_regression_with_regularization(movie_features, train_ratings, test_ratings, args):
 	"""a total of 671 users, 700003 movies.
-	the function handles linear
+	the function handles linear_model			
 	regression for each user, 
 	linear regression with regularization, 
 	and non -linear transformation """
@@ -137,7 +137,28 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 
 def read_from_file(filename, args):
 	data = np.genfromtxt(filename, delimiter = ',', dtype = float)
-	return data[1:]
+	data = data[1:]
+	if(filename == "movie-data\\movie-features.csv"): 
+		with open(filename) as f: 
+			labels = f.readline()
+			labels = labels.split(",")
+		pearsonCoefficients = []
+		minimum = -0.0001
+		best_state = []
+		featureDimension = len(data[0])
+		for i in range(1, featureDimension):
+			for j in range(i+1, featureDimension): 
+				pearsonCoefficient = np.mean(data[:,i] * data[:,j]) - np.mean(data[:,i]) * np.mean(data[:,j])/np.sqrt((np.mean(data[:,i] * data[:,i]) - (np.mean(data[:,i]) * np.mean(data[:,i]))) * (np.mean(data[:,j] * data[:,j]) - (np.mean(data[:,j]) * np.mean(data[:,j]))))
+				if(pearsonCoefficient < minimum):
+					best_state = [labels[i], labels[j], pearsonCoefficient]
+					minimum = pearsonCoefficient
+				pearsonCoefficients.append(pearsonCoefficient)
+		print("pearson coefficient between %s and %s is %f" % (best_state[0], best_state[1], best_state[2]))	
+		plt.plot(pearsonCoefficients, 'g*')
+		plt.xlabel('genre tuple')
+		plt.ylabel('correlation coefficient')
+		plt.show()
+	return data
 
 def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	a = datetime.datetime.now()
