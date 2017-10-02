@@ -107,8 +107,8 @@ def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwarg
 
 def func(k): 
 	train_ratings  = read_from_file("movie-data\\ratings-train.csv", args)
-	movie_features = read_from_file("movie-data\\movie-features.csv", args)
-	values_of_lambda = np.logspace(-4, 0, 50)
+	_, _, movie_features = read_from_file("movie-data\\movie-features.csv", args)
+	values_of_lambda = np.logspace(-5, 0, 50)
 	weight, train_error = compute_train_error(train_ratings, movie_features, "k_fold", values_of_lambda, k)
 	return (np.mean(train_error), train_error, weight)
 
@@ -119,7 +119,7 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 	linear regression with regularization, 
 	and non -linear transformation """
 	if(args.verbose == 1 or args.verbose == 3): 
-		K = [2, 3, 4, 5]
+		K = [2, 3, 4, 5, 6]
 		results = ThreadPool(4).map(func, K)
 		average_errors = list(list(zip(*results))[0])
 		train_errors   = list(list(zip(*results))[1])
@@ -138,13 +138,13 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 def read_from_file(filename, args):
 	data = np.genfromtxt(filename, delimiter = ',', dtype = float)
 	data = data[1:]
+	best_state = []
+	pearsonCoefficients = []
 	if(filename == "movie-data\\movie-features.csv"): 
-		with open(filename) as f: 
+		with open("movie-data\\movie-features.csv") as f: 
 			labels = f.readline()
 			labels = labels.split(",")
-		pearsonCoefficients = []
 		minimum = -0.0001
-		best_state = []
 		featureDimension = len(data[0])
 		for i in range(1, featureDimension):
 			for j in range(i+1, featureDimension): 
@@ -153,12 +153,19 @@ def read_from_file(filename, args):
 					best_state = [labels[i], labels[j], pearsonCoefficient]
 					minimum = pearsonCoefficient
 				pearsonCoefficients.append(pearsonCoefficient)
-		print("pearson coefficient between %s and %s is %f" % (best_state[0], best_state[1], best_state[2]))	
-		plt.plot(pearsonCoefficients, 'g*')
-		plt.xlabel('genre tuple')
-		plt.ylabel('correlation coefficient')
-		plt.show()
-	return data
+		if(args.verbose == 3): 
+			temp = np.array([[0] * 190] * len(data))
+			temp[:,1:19] = data[:,0:18]
+			curr = 0
+			for i in range(1, 19): 
+				for j in range(i+1, 19):
+					temp[:, curr] = data[:,i] * data[:,j]
+					curr = curr + 1 
+			return best_state, pearsonCoefficients, temp
+		else: 
+			return best_state, pearsonCoefficients, data
+	else:
+		return data
 
 def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	a = datetime.datetime.now()
@@ -189,8 +196,13 @@ if __name__ == "__main__":
 	)
 	parser.add_argument('-v', '--verbose', action="count", help = "used to switch between linear regression with and w/o cross_validation")
 	args = parser.parse_args()
-	movie_features = read_from_file("movie-data\\movie-features.csv", args)
+	best_state, pearsonCoefficients, movie_features = read_from_file("movie-data\\movie-features.csv", args)
 	test_ratings   = read_from_file("movie-data\\ratings-test.csv", args)
 	train_ratings = read_from_file("movie-data\\ratings-train.csv", args)
 	if(args.verbose != 0): 
 		regression_analysis(movie_features, train_ratings, test_ratings, args)
+		print("pearson coefficient between %s and %s is %f" % (best_state[0], best_state[1], best_state[2]))	
+		plt.plot(pearsonCoefficients, 'g*')
+		plt.xlabel('genre tuple')
+		plt.ylabel('correlation coefficient')
+		plt.show()
