@@ -20,7 +20,7 @@ the loss function in this case is taken to be L2 norm (Euclidean length between 
 Added support for the multi-processing module to parallelize against different values of K respectively <br> 
 ### Applying non-linear transformation
 the non-linear transformation is taken to be each genre multiplied with the rest of the genres in the dataset. <br>
-![Alt text](https://github.com/aa18514/Python/blob/master/netflix_regression/correlation_coefficients.png "Correlation coefficients")
+![Alt text](https://github.com/aa18514/Python/blob/master/netflix_regression/correlation_coefficients.png "Correlation coefficients") <br>
 The following figure shows the correlation coefficients between different genres in the dataset; it is worth noting <br> 
 that the correlation coefficient between the genre 'Comedy' and 'Drama' is -0.61976, which shows that most of the movies <br>
 that contain the genre 'Comedy' do not contain the genre 'Drama', and vice-versa  <br> 
