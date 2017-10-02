@@ -5,174 +5,151 @@ from sklearn import linear_model
 import math
 import argparse
 import textwrap
+from itertools import chain
 from multiprocessing.dummy import Pool as ThreadPool
+import datetime 
+from datetime import timedelta
 
-variance = -1
-mean = -1
+def quantize(expected_ratings): 
+	expected_ratings[np.where(expected_ratings < 0.25)]  = 0.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 0.25, expected_ratings <= 0.50))] = 0.50
+	expected_ratings[np.where(np.logical_and(expected_ratings > 0.50, expected_ratings  < 0.75))]  = 0.50
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 0.75, expected_ratings <= 1.00))] = 1.00
+	expected_ratings[np.where(np.logical_and(expected_ratings > 1.00, expected_ratings < 1.25))]  = 1.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 1.25, expected_ratings <= 1.50))] = 1.50
+	expected_ratings[np.where(np.logical_and(expected_ratings > 1.50, expected_ratings < 1.75))]  = 1.50
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 1.75, expected_ratings <= 2.00))] = 2.00
+	expected_ratings[np.where(np.logical_and(expected_ratings > 2.00, expected_ratings < 2.25))]  = 2.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 2.25, expected_ratings <= 2.50))]  = 2.50
+	expected_ratings[np.where(np.logical_and(expected_ratings > 2.50, expected_ratings < 2.75))]  = 2.50
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 2.75, expected_ratings <= 3.00))]  = 3.00
+	expected_ratings[np.where(np.logical_and(expected_ratings > 3.00, expected_ratings < 3.25))]  = 3.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 3.25, expected_ratings <= 3.50))] = 3.50
+	expected_ratings[np.where(np.logical_and(expected_ratings > 3.50, expected_ratings < 3.75))]  = 3.50
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 3.75, expected_ratings <= 4.00))] = 4.00
+	expected_ratings[np.where(np.logical_and(expected_ratings > 4.00, expected_ratings < 4.25))]  = 4.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 4.00, expected_ratings < 4.25))]  = 4.00
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 4.25, expected_ratings <= 4.50))] = 4.50
+	expected_ratings[np.where(np.logical_and(expected_ratings >= 4.50, expected_ratings <= 4.75))] = 4.50
+	expected_ratings[np.where(expected_ratings >= 4.75)] = 5.00
+	return expected_ratings
 
 def compute_error(weights, test_ratings, movie_features): 
-	expected_ratings = np.dot(weights, np.array(movie_features).T)
-	expected_ratings[np.where(expected_ratings < 0.25)]  = 0.00
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 0.25, expected_ratings <= 0.50))]  = 0.50
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 0.50, expected_ratings < 0.75))]  = 0.50
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 0.75, expected_ratings <= 1.00))]  = 1.00
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 1.00, expected_ratings < 1.25))]  = 1.00
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 1.25, expected_ratings <= 1.50))]  = 1.50
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 1.50, expected_ratings < 1.75))]  = 1.50
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 1.75, expected_ratings <= 2.00))]  = 2.00
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 2.00, expected_ratings < 2.25))]  = 2.00
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 2.25, expected_ratings < 2.50))]  = 2.50
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 2.50, expected_ratings < 2.75))]  = 2.50
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 2.75, expected_ratings < 3.00))]  = 3.00
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 3.00, expected_ratings < 3.25))]  = 3.00
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 3.50, expected_ratings < 3.75))]  = 3.50
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 3.25, expected_ratings <= 3.50))]  = 3.50
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 4.00, expected_ratings < 4.25))]  = 4.00
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 3.75, expected_ratings <= 4.00))]  = 4.00
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 4.00, expected_ratings < 4.25))] = 4.00
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 4.25, expected_ratings <= 4.50))]  = 4.50
-	expected_ratings[np.where(np.logical_and(expected_ratings >= 4.50, expected_ratings <= 4.75))]  = 4.50
-	expected_ratings[np.where(expected_ratings >= 4.75)] = 5.00
-	return(np.sum((expected_ratings - test_ratings)**2)/len(test_ratings))
+	expected_ratings = quantize(np.dot(weights, np.array(movie_features).T))
+	return(np.mean((expected_ratings - test_ratings)**2))
 
-def standardize(movie_features, dataset):
-	global mean
-	global variance
-	standardized_movie_features = [1]*(len(movie_features)+1)
-	if(np.std(movie_features[1:]) == 0): 
-		standardized_movie_features[1:] = movie_features[1:] - np.mean(movie_features[1:])
-		mean = np.mean(movie_features[1:])
-	elif(dataset == "train"):
-		standardized_movie_features[1:] = (movie_features[1:] - np.mean(movie_features[1:]))/np.std(movie_features[1:])
-		mean = np.mean(movie_features[1:]) 
-		variance = np.std(movie_features[1:])
-	elif(dataset == "test"): 
-		if(variance != 0): 
-			standardized_movie_features[1:] = (movie_features[1:] - mean)/variance
-		else: 
-			standardized_movie_features[1:] = (movie_features[1:] - mean)
-	return standardized_movie_features
-
-def train_dataset(features, ratings, lambd_val):
+def train_dataset(featureDimension, features, ratings, lambd_val):
 	clf = linear_model.Ridge(alpha=lambd_val, normalize = False, fit_intercept = False, solver = 'svd')
-	clf.fit(features, ratings)
+	print(features)
+	clf.fit(features.reshape(len(ratings), featureDimension),ratings)
 	return clf.coef_
 
-def k_fold_algorithm(movie_ratings, res, values_of_lambda, K):
+def k_fold_algorithm(movie_ratings, featureDimension, res, values_of_lambda, K):
 	errors = []
-	for value in values_of_lambda:
-		error = 0
-		limit = 0
-		limits = [0]*(K+1)
-		subset_size = int(len(movie_ratings)/K) 
-		mod = len(movie_ratings) % K
-		for i in range(0, mod):
-			limit += subset_size + 1 
-			limits[i+1] = limit
-		for i in range(mod, len(limits) -1):
-			limit += subset_size
-			limits[i+1] = limit	
-		for i in range(0, K): 
-			features_train = movie_ratings[:limits[i]] + movie_ratings[limits[i+1]:]
-			features_test = movie_ratings[limits[i]:limits[i+1]]
-			ratings_train = res[:limits[i]] + res[limits[i+1]:]
-			ratings_test = res[limits[i]:limits[i+1]]
-			weight = train_dataset(features_train, np.array(ratings_train)[:,2], value)
-			error += compute_error(weight, np.array(ratings_test)[:,2], features_test)
+	limits = np.array([[0] * (K + 1)])
+	subset_size = int(len(movie_ratings)/K) 
+	mod = len(movie_ratings) % K
+	limits[:,1:(mod + 1)] = np.arange(1, mod + 1, 1) * (subset_size + 1)
+	limits[:,(mod+1):len(limits[0])] = (np.arange(1, len(limits[0]) - mod, 1) * (subset_size)) + (mod * (subset_size + 1))
+	features_train = np.append(movie_ratings[limits[:,0][0]:limits[:,(K-1)][0]], movie_ratings[limits[:,1][0]:limits[:,K][0]:,])
+	for i in range(0, K):
+		features_test  = movie_ratings[int(limits[:,i]) : int(limits[:,i+1])]
+		ratings_train  = np.append(res[:int(limits[:,i]):,], res[int(limits[:,i+1]):len(res):,]) 
+		ratings_test   = res[int(limits[:,i]):int(limits[:,i+1])]
+		error = [] 
+		for value in values_of_lambda:
+			weight = train_dataset(featureDimension, features_train[i*19 + 0 : i*19 + 19:,], ratings_train, value)
+			error.append(compute_error(weight, ratings_test, features_test))
 		errors.append(error)
-	weight = train_dataset(movie_ratings, np.array(res)[:,2], values_of_lambda[np.argmin(errors)])
-	return weight
+	errors = np.sum(errors, axis = 0, keepdims = True)
+	return train_dataset(featureDimension, movie_ratings, res, values_of_lambda[np.argmin(errors)])
 
 def naive_linear_regression(movie_ratings, res): 
-		X_ = np.linalg.pinv(np.array(movie_ratings))
-		return np.dot(X_, res.T)
+	return np.dot(np.linalg.pinv(movie_ratings), res.T)
 
-def retrieve_sub_dataset(ratings, current_pointer, sub_data_set_label, movie_features): 
-	movie_ratings = []
-	res = [ratings[current_pointer]]
-	curr = current_pointer - 1
-	for o in range(curr + 1, len(ratings)): 
-		if(ratings[o][0] == ratings[curr][0]):
-			res.append(ratings[o])
-			curr = curr + 1 
+def compute(weight, partitioned_test_ratings, partitioned_movie_features):
+	errors = np.array([])
+	for users in range(671):
+			e = quantize(np.dot(weight[users], partitioned_movie_features[users].T))	
+			errors = np.append(errors, np.mean((e - partitioned_test_ratings[users])**2))
+	return errors
+
+def extract_person(ratings, algorithm, movie_features, *args, **kwargs):
+		featureDimension = len(movie_features[0]) 
+		partitioned_ratings = [] 
+		partitioned_movie_features = []
+		weight = []
+		for i in range(671):
+			person = ratings[ratings[:,0] == i + 1]
+			temp_features = movie_features[person[:,1].astype(int) - 1][:,1:featureDimension]
+			partitioned_ratings.append(person[:,2])
+			movie_ratings = np.ndarray(shape=(len(person[:,2]), featureDimension))
+			movie_ratings[:,0] = 1 
+			std = np.std(temp_features, axis = 1, keepdims = True)
+			std[std == 0] = 0.001
+			movie_ratings[:,1:featureDimension] = (temp_features - np.mean(temp_features, axis = 1, keepdims = True))/std
+			partitioned_movie_features.append(movie_ratings)
+			if(algorithm == "k_fold"): 
+				weight.append(k_fold_algorithm(movie_ratings, featureDimension, person[:,2], args[0], args[1]))
+			elif(algorithm == "lin_reg"): 
+				weight.append(naive_linear_regression(movie_ratings, person[:,2]))
+		if(algorithm == "None"):
+			return partitioned_ratings, partitioned_movie_features
 		else: 
-			break;
-	for i in range(0, len(res)): 
-			movie_ratings.append(standardize((movie_features[int(res[i][1] - 1.0)]), sub_data_set_label))
-	return res, movie_ratings, curr+2
+			return np.array(partitioned_ratings), np.array(partitioned_movie_features), np.array(weight)
 
-def compute_test_error(test_ratings, movie_features, weight):
-	current_user = 0
-	j = 1 
-	test_error = []
-	while(j < len(test_ratings)):
-		test_res, test_movie_ratings, j = retrieve_sub_dataset(test_ratings, j, "test", movie_features)
-		test_error.append(compute_error(weight[current_user], np.array(test_res)[:,2], test_movie_ratings))
-		current_user = current_user + 1
-	return test_error
+def compute_test_error(weight, test_ratings, movie_features):
+	partitioned_test_ratings, partitioned_movie_features = extract_person(test_ratings, "None", movie_features)
+	return compute(weight, partitioned_test_ratings, partitioned_movie_features)
 
-def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwargs): 
-	j = 1
-	train_error = []
-	weight = [] 
-	while(j < len(train_ratings)): 
-		train_res, train_movie_ratings, j = retrieve_sub_dataset(train_ratings, j, "train", movie_features)
-		if(algorithm == "k_fold"): 
-			weight.append(k_fold_algorithm(train_movie_ratings, train_res, args[0], args[1]))
-		else:
-			weight.append(naive_linear_regression(train_movie_ratings, np.array(train_res)[:,2]))
-		train_error.append(compute_error(weight[-1], np.array(train_res)[:,2], train_movie_ratings))
-	return weight, train_error
+def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwargs):
+	partitioned_train_ratings, partitioned_movie_features, weight = extract_person(train_ratings, algorithm, movie_features, args[0], args[1])
+	return weight, compute(weight, partitioned_train_ratings, partitioned_movie_features)
 
 def func(k): 
-	train_ratings  = read_from_file("movie-data\\ratings-train.csv")
-	movie_features = read_from_file("movie-data\\movie-features.csv")
+	train_ratings  = read_from_file("movie-data\\ratings-train.csv", args)
+	movie_features = read_from_file("movie-data\\movie-features.csv", args)
 	values_of_lambda = np.logspace(-4, 0, 50)
 	weight, train_error = compute_train_error(train_ratings, movie_features, "k_fold", values_of_lambda, k)
 	return (np.mean(train_error), train_error, weight)
 
-def linear_regression_with_regularization(test_ratings, args):
+def linear_regression_with_regularization(movie_features, train_ratings, test_ratings, args):
 	"""a total of 671 users, 700003 movies.
 	the function handles linear
 	regression for each user, 
 	linear regression with regularization, 
 	and non -linear transformation """
 	if(args.verbose == 1 or args.verbose == 3): 
-		pool = ThreadPool(4)
-		results = pool.map(func, [2, 3, 4, 5])
+		K = [2, 3, 4]
+		results = ThreadPool(4).map(func, K)
 		average_errors = list(list(zip(*results))[0])
-		train_errors = list(list(zip(*results))[1])
-		final_weights = list(list(zip(*results))[2])
-		plt.plot([2, 3, 4, 5], average_errors)
+		train_errors   = list(list(zip(*results))[1])
+		final_weights  = list(list(zip(*results))[2])
+		plt.plot(K, average_errors)
 		plt.xlabel('K')
 		plt.ylabel('average test error')
 		plt.title('cross validation error against K')	
 		plt.show()
 		minimum = np.argmin(average_errors)
-		movie_features = read_from_file("movie-data\\movie-features.csv")
-		return train_errors[minimum], compute_test_error(test_ratings, movie_features, final_weights[minimum])
+		return train_errors[minimum], compute_test_error(final_weights[minimum], test_ratings, movie_features)
 	else: 
-		weight, train_error = compute_train_error(train_ratings, movie_features, "lin_reg")
-		return train_error, compute_test_error(test_ratings, movie_features, weight)
+		weight, train_error = compute_train_error(train_ratings, movie_features, "lin_reg", None, None)
+		return train_error, compute_test_error(weight, test_ratings, movie_features)
 
-def read_from_file(filename):
-	res = []  
-	with open(filename, "r") as csvreader: 
-		csvreader.readline()
-		result = csvreader.readlines()
-		for i in range(0, len(result)): 
-			line = result[i].strip('\n')
-			temp = line.split(",")
-			res.append([float(i) for i in temp])
-			#if(filename == "movie-data\\movie-features.csv" and args.verbose == 3):
-			#	len_movie_features = len(res[-1])
-			#	for p in range(1, len_movie_features):
-			#		for j in range(p, len_movie_features): 
-			#			res[-1].append(float(res[-1][p] * res[-1][j])) 
-		return res
+def read_from_file(filename, args):
+	data = np.genfromtxt(filename, delimiter = ',', dtype = float)
+	data_mod = list(data[1:])
+	print(data_mod)
+	for j in range(1, 19):
+		for i in range((j+1), 19): 
+			data_mod.append(np.array(data_mod)[:,j] * np.array(data_mod)[:,i])
+	return data[1:]
 
-def regression_analysis(test_ratings, args):
-	error_train, error_test = linear_regression_with_regularization(test_ratings, args)
+def regression_analysis(movie_features, train_ratings, test_ratings, args):
+	a = datetime.datetime.now()
+	error_train, error_test = linear_regression_with_regularization(movie_features, train_ratings, test_ratings, args)
+	b = datetime.datetime.now()
+	print((b - a).total_seconds())
 	plt.xlabel("users")
 	plt.ylabel("squared error")
 	plt.plot(np.arange(0., len(error_test), 1), error_test)
@@ -197,6 +174,8 @@ if __name__ == "__main__":
 	)
 	parser.add_argument('-v', '--verbose', action="count", help = "used to switch between linear regression with and w/o cross_validation")
 	args = parser.parse_args()
-	test_ratings   = read_from_file("movie-data\\ratings-test.csv")
+	movie_features = read_from_file("movie-data\\movie-features.csv", args)
+	test_ratings   = read_from_file("movie-data\\ratings-test.csv", args)
+	train_ratings = read_from_file("movie-data\\ratings-train.csv", args)
 	if(args.verbose != 0): 
-		regression_analysis(test_ratings, args)
+		regression_analysis(movie_features, train_ratings, test_ratings, args)
