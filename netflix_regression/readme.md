@@ -28,9 +28,7 @@ the original features remain unchanged, the transformed features are appended to
 This yields a new dimension vector with a dimension of 190 <br>  
 ## Results
 ### cross validation error against K
-![Alt text](https://github.com/aa18514/Python/blob/master/netflix_regression/cross_validation_error.png "Cross Validation Error versus K") <br>
-### training & test error (original features with regularization)
-![Alt text](https://github.com/aa18514/Python/blob/master/netflix_regression/test_train_error.png "training/test error for each User" ) <br>
+![Alt text](https://github.com/aa18514/Python/blob/master/netflix_regression/cross_validation_error.png "Cross Validation Error versus K") (https://github.com/aa18514/Python/blob/master/netflix_regression/test_train_error.png "training/test error for each User" ) <br>
 mean test error: 1.454327 <br> 
 mean train error: 0.540168 <br>
 ### training & test error (original features without regularization)
