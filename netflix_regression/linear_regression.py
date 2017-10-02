@@ -40,7 +40,6 @@ def compute_error(weights, test_ratings, movie_features):
 
 def train_dataset(featureDimension, features, ratings, lambd_val):
 	clf = linear_model.Ridge(alpha=lambd_val, normalize = False, fit_intercept = False, solver = 'svd')
-	print(features)
 	clf.fit(features.reshape(len(ratings), featureDimension),ratings)
 	return clf.coef_
 
@@ -51,14 +50,14 @@ def k_fold_algorithm(movie_ratings, featureDimension, res, values_of_lambda, K):
 	mod = len(movie_ratings) % K
 	limits[:,1:(mod + 1)] = np.arange(1, mod + 1, 1) * (subset_size + 1)
 	limits[:,(mod+1):len(limits[0])] = (np.arange(1, len(limits[0]) - mod, 1) * (subset_size)) + (mod * (subset_size + 1))
-	features_train = np.append(movie_ratings[limits[:,0][0]:limits[:,(K-1)][0]], movie_ratings[limits[:,1][0]:limits[:,K][0]:,])
 	for i in range(0, K):
+		features_train = np.append(movie_ratings[:int(limits[:,i]):,], movie_ratings[int(limits[:,i+1]):len(movie_ratings):,])
 		features_test  = movie_ratings[int(limits[:,i]) : int(limits[:,i+1])]
-		ratings_train  = np.append(res[:int(limits[:,i]):,], res[int(limits[:,i+1]):len(res):,]) 
+		ratings_train  = np.append(res[0:int(limits[:,i]):,], res[int(limits[:,i+1]):len(res):,]) 
 		ratings_test   = res[int(limits[:,i]):int(limits[:,i+1])]
 		error = [] 
 		for value in values_of_lambda:
-			weight = train_dataset(featureDimension, features_train[i*19 + 0 : i*19 + 19:,], ratings_train, value)
+			weight = train_dataset(featureDimension, features_train, ratings_train, value)
 			error.append(compute_error(weight, ratings_test, features_test))
 		errors.append(error)
 	errors = np.sum(errors, axis = 0, keepdims = True)
@@ -138,11 +137,6 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 
 def read_from_file(filename, args):
 	data = np.genfromtxt(filename, delimiter = ',', dtype = float)
-	data_mod = list(data[1:])
-	print(data_mod)
-	for j in range(1, 19):
-		for i in range((j+1), 19): 
-			data_mod.append(np.array(data_mod)[:,j] * np.array(data_mod)[:,i])
 	return data[1:]
 
 def regression_analysis(movie_features, train_ratings, test_ratings, args):
