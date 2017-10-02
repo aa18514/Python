@@ -119,7 +119,7 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 	linear regression with regularization, 
 	and non -linear transformation """
 	if(args.verbose == 1 or args.verbose == 3): 
-		K = [2, 3, 4]
+		K = [2, 3, 4, 5]
 		results = ThreadPool(4).map(func, K)
 		average_errors = list(list(zip(*results))[0])
 		train_errors   = list(list(zip(*results))[1])
