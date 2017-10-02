@@ -21,7 +21,7 @@ Added support for the multi-processing module to parallelize against different v
 ### Applying non-linear transformation
 the non-linear transformation is taken to be each genre multiplied with the rest of the genres in the dataset. <br>
 The following figure shows the correlation coefficients between different genres in the dataset; it is worth noting <br> 
-![Alt text](https://github.com/aa18514/Python/blob/master/netflix-regression/correlation_coefficients.png "Correlation coefficients")
+![Alt text](https://github.com/aa18514/Python/blob/master/netflix_regression/correlation_coefficients.png "Correlation coefficients")
 that the correlation coefficient between the genre 'Comedy' and 'Drama' is -0.61976, which shows that most of the movies <br>
 that contain the genre 'Comedy' do not contain the genre 'Drama', and vice-versa  <br> 
 the original features remain unchanged, the transformed features are appended to the original feature vector <br>
