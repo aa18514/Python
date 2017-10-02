@@ -34,7 +34,7 @@ We have cross validated against each userThe model performs well when K = 3 for 
 <br>
 <div>
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/test_train_error.png" width="300" height="300" />
-	<img src=" https://github.com/aa18514/Python/blob/master/netflix_regression/test_train_error.png "training/test error for each User" width="300" height = "300" /> 
+	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/regression_without_regularization.png" width="300" height = "300" /> 
 </div> 
 <br>
 mean test error: 1.454327 <br> 
