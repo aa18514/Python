@@ -110,7 +110,7 @@ def func(k):
 	_, _, movie_features = read_from_file("movie-data\\movie-features.csv", args)
 	values_of_lambda = np.logspace(-5, 0, 50)
 	weight, train_error = compute_train_error(train_ratings, movie_features, "k_fold", values_of_lambda, k)
-	return (np.mean(train_error), train_error, weight)
+	return (np.mean(train_error), train_error, weight, np.var(train_error))
 
 def linear_regression_with_regularization(movie_features, train_ratings, test_ratings, args):
 	"""a total of 671 users, 700003 movies.
@@ -121,15 +121,19 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 	if(args.verbose == 1 or args.verbose == 3): 
 		K = [2, 3, 4, 5, 6]
 		results = ThreadPool(4).map(func, K)
-		average_errors = list(list(zip(*results))[0])
+		bias = list(list(zip(*results))[0])
 		train_errors   = list(list(zip(*results))[1])
 		final_weights  = list(list(zip(*results))[2])
-		plt.plot(K, average_errors)
+		variance = list(list(zip(*results))[3])
 		plt.xlabel('K')
-		plt.ylabel('average test error')
-		plt.title('cross validation error against K')	
+		plt.ylabel('bias test data')
+		plt.plot(K, bias)
 		plt.show()
-		minimum = np.argmin(average_errors)
+		plt.xlabel('K')
+		plt.ylabel('variance test data')
+		plt.plot(K, variance)
+		plt.show()
+		minimum = np.argmin(bias)
 		return train_errors[minimum], compute_test_error(final_weights[minimum], test_ratings, movie_features)
 	else: 
 		weight, train_error = compute_train_error(train_ratings, movie_features, "lin_reg", None, None)
