@@ -37,10 +37,9 @@ We have cross validated against each userThe model performs well when K = 3 for 
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/regression_without_regularization.png" width="400" height = "400" /> 
 </div>
 <br>
-<div> 
-	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/non-linear-features.png" width="400" height="400" align="middle" />
-</div> 
-<br>
+<p align="center"> 
+	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/non-linear-features.png" width="400" height="400" /> 
+</p>
 
 |  | Mean Test Error | Mean Train Error |
 | :---: | :-: | :-: |
