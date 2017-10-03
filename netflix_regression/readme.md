@@ -43,5 +43,5 @@ This yields a new dimension vector with a dimension of 190 <br>
 |  | Mean Test Error | Mean Train Error |
 | :---: | :-: | :-: |
 | Unregularized (Original Features) | 1.496136 | 0.523973 |
-| Regularized (Original Features) | 1.454327 | 0.540168 |
-| Regularized (Transformed Features) | 1.455693 | 0.347885 | 
+| Regularized (Original Features) | 1.428164 | 0.538644 |
+| Regularized (Transformed Features) | 1.451123 | 0.349376 | 

@@ -85,7 +85,7 @@ def extract_person(ratings, algorithm, movie_features, *args, **kwargs):
 			movie_ratings = np.ndarray(shape=(len(person[:,2]), featureDimension))
 			movie_ratings[:,0] = 1 
 			std = np.std(temp_features, axis = 1, keepdims = True)
-			std[std == 0] = 0.001
+			std[std == 0] = 0.0001
 			movie_ratings[:,1:featureDimension] = (temp_features - np.mean(temp_features, axis = 1, keepdims = True))/std
 			partitioned_movie_features.append(movie_ratings)
 			if(algorithm == "k_fold"): 
@@ -120,7 +120,7 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 	and non -linear transformation """
 	if(args.verbose == 1 or args.verbose == 3): 
 		K = [2, 3, 4, 5, 6]
-		results = ThreadPool(4).map(func, K)
+		results = ThreadPool(5).map(func, K)
 		bias = list(list(zip(*results))[0])
 		train_errors   = list(list(zip(*results))[1])
 		final_weights  = list(list(zip(*results))[2])
@@ -135,7 +135,8 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 		plt.ylabel('variance train data')
 		plt.plot(K, variance)
 		plt.show()
-		minimum = np.argmin(bias)
+		error = np.array(bias) + np.array(variance)
+		minimum = np.argmin(error)
 		return train_errors[minimum], compute_test_error(final_weights[minimum], test_ratings, movie_features)
 	else: 
 		weight, train_error = compute_train_error(train_ratings, movie_features, "lin_reg", None, None)
