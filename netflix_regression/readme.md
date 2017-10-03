@@ -42,3 +42,4 @@ We have cross validated against each userThe model performs well when K = 3 for 
 | :---: | :-: | :-: |
 | Unregularized (Original Features) | 1.496136 | 0.523973 |
 | Regularized (Original Features) | 1.454327 | 0.540168 |
+| Regularized (Transformed Features) | 1.455693 | 0.347885 | 
