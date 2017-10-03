@@ -27,9 +27,10 @@ that contain the genre 'Comedy' do not contain the genre 'Drama', and vice-versa
 the original features remain unchanged, the transformed features are appended to the original feature vector <br>
 This yields a new dimension vector with a dimension of 190 <br>  
 ## Results
-<p align="center">
-<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/cross_validation_error.png" align="center">  
-</p>
+<div>
+	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/bias_against_K.png" width="400" height="400" />
+	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/variance_against_K.png" width="400" height = "400" /> 
+</div>
 <div>
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/test_train_error.png" width="400" height="400" />
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/regression_without_regularization.png" width="400" height = "400" /> 
