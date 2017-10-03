@@ -38,7 +38,7 @@ We have cross validated against each userThe model performs well when K = 3 for 
 </div>
 <br>
 
-| First | Mean Test Error | Mean Train Error |
+|  | Mean Test Error | Mean Train Error |
 | :---: | :-: | :-: |
-| Unregularized | 1.496136 | 0.523973 |
-| Regularized | 1.454327 | 0.540168 |
+| Unregularized (Original Features) | 1.496136 | 0.523973 |
+| Regularized (Original Features) | 1.454327 | 0.540168 |
