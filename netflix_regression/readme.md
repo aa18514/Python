@@ -38,7 +38,7 @@ We have cross validated against each userThe model performs well when K = 3 for 
 </div>
 <br>
 <div> 
-	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/non-linear-features.png" width="400" height="400" />
+	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/non-linear-features.png" align="middle" width="400" height="400" />
 </div> 
 <br>
 
