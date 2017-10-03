@@ -37,7 +37,7 @@ We have cross validated against each userThe model performs well when K = 3 for 
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/regression_without_regularization.png" width="400" height = "400" /> 
 </div> 
 <br>
-mean test error: 1.454327 <br> 
-mean train error: 0.540168 <br>
-mean test error: 1.496136 <br>
-mean train error: 0.523973 <br>
+|  | **Mean Test Error**  | **Mean Train Error**  |
+| :---:   | :-: | :-: |
+| **Unregularized (Original Features) ** | 1.496136 | 0.523973 |
+| **Regularized (Original Features) **   | 1.454327 | 0.540168 |
