@@ -38,8 +38,18 @@ class file_reader:
 						y = data[:,j]
 						temp[:, curr] = x * y
 						curr = curr + 1 
+				temp[:,0] = 1 
+				mean = np.mean(temp[:,1:172], axis = 1, keepdims = True)
+				std = np.std(temp[:,1:172], axis = 1, keepdims = True)
+				std[std == 0] = 0.0001
+				temp[:,1:172] = (temp[:,1:172] - mean)/std
 				return best_state, pearsonCoefficients, temp
 			else: 
+				data[:,0] = 1 
+				mean = np.mean(data[:,1:19], axis = 1, keepdims = True )
+				std = np.std(data[:,1:19], axis = 1, keepdims = True)
+				std[std == 0] = 0.0001
+				data[:,1:19] = (data[:,1:19] - mean)/std
 				return best_state, pearsonCoefficients, data
 	
 	def read_train_data(self): 

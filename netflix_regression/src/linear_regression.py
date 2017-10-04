@@ -81,14 +81,9 @@ def extract_person(ratings, algorithm, movie_features, *args, **kwargs):
 		weight = []
 		for i in range(671):
 			person = ratings[ratings[:,0] == i + 1]
-			temp_features = movie_features[person[:,1].astype(int) - 1][:,1:featureDimension]
-			partitioned_ratings.append(person[:,2])
-			movie_ratings = np.ndarray(shape=(len(person[:,2]), featureDimension))
-			movie_ratings[:,0] = 1 
-			std = np.std(temp_features, axis = 1, keepdims = True)
-			std[std == 0] = 0.0001
-			movie_ratings[:,1:featureDimension] = (temp_features - np.mean(temp_features, axis = 1, keepdims = True))/std
+			movie_ratings = movie_features[person[:,1].astype(int) - 1]
 			partitioned_movie_features.append(movie_ratings)
+			partitioned_ratings.append(person[:,2])
 			if(algorithm == "k_fold"): 
 				weight.append(k_fold_algorithm(movie_ratings, featureDimension, person[:,2], args[0], args[1]))
 			elif(algorithm == "lin_reg"): 
