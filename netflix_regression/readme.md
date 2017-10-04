@@ -16,6 +16,12 @@ The target function, y represents the actual rating <br>
 training data(x[1:,]) is normalized to zero mean and unit variance, the same parameters are used to normalize the test data set <br>
 ### Controlling Overfitting
 L2 regularization is used to reduce overfitting (https://en.wikipedia.org/wiki/Overfitting) and improve test accuracy <br> 
+We learn the regularized weights for each user seperately which leads to higher bias and lower bias as compared to taking a single <br> 
+regularized weight vector for all the users <br> 
+The following graph shows the lambda values for all 671 users: 
+<p align="center"> 
+	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/lambda_values.png" /> 
+</p> 
 the loss function in this case is taken to be L2 norm (Euclidean length between the predictor and the target) <br> 
 Added support for the multi-processing module to parallelize against different values of K respectively <br> 
 ### Applying non-linear transformation
@@ -27,7 +33,7 @@ The following figure shows the correlation coefficients between different genres
 that the correlation coefficient between the genre 'Comedy' and 'Drama' is -0.61976, which shows that most of the movies <br>
 that contain the genre 'Comedy' do not contain the genre 'Drama', and vice-versa  <br> 
 the original features remain unchanged, the transformed features are appended to the original feature vector <br>
-This yields a new dimension vector with a dimension of 190 <br>  
+This yields a new dimension vector with a dimension of 172 <br>  
 ## Results
 <br>
 <div>
@@ -45,6 +51,6 @@ This yields a new dimension vector with a dimension of 190 <br>
 
 |  | Mean Test Bias | Mean Train Bias | Mean Test Variance | Mean Train Variance |
 | :---: | :-: | :-: | :-:| :-: |
-| **Unregularized (Original Features)**  | 1.496136 | 0.523973 | 1.742124 | 0.117886 |
-| **Regularized (Original Features)**    | 1.434465 | 0.539036 | 1.322436 | 0.116598 |
+| **Unregularized (Original Features)**  | 1.567320 | 0.561700 | 1.809461 | 0.131361 |
+| **Regularized (Original Features)**    | 1.510022 | 0.611829 | 1.417825 | 0.147195 |
 | **Regularized (Transformed Features)** | 1.829337 | 0.277696 | 1.361984 | 0.061122 | 

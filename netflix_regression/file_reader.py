@@ -9,6 +9,7 @@ class file_reader:
 	def read_movie_features(self, args): 
 		data = np.genfromtxt(self.__movieFeatures, delimiter = ',', dtype = float)
 		data = data[1:]
+		data[:,0] = 1
 		best_state = [] 
 		pearsonCoefficients = []
 		with open(self.__movieFeatures) as f: 
@@ -38,7 +39,6 @@ class file_reader:
 						y = data[:,j]
 						temp[:, curr] = x * y
 						curr = curr + 1 
-				temp[:,0] = 1 
 				mean = np.mean(temp[:,1:172], axis = 1, keepdims = True)
 				std = np.std(temp[:,1:172], axis = 1, keepdims = True)
 				std[std == 0] = 0.0001
@@ -53,11 +53,11 @@ class file_reader:
 				return best_state, pearsonCoefficients, data
 	
 	def read_train_data(self): 
-		data = np.genfromtxt(self.__trainFile, delimiter = ',', dtype = float)
+		data = np.genfromtxt(self.__trainFile, delimiter = ',', dtype = int)
 		data = data[1:]
 		return data
 
 	def read_test_data(self): 
-		data = np.genfromtxt(self.__testFile, delimiter = ',', dtype = float)
+		data = np.genfromtxt(self.__testFile, delimiter = ',', dtype = int)
 		data = data[1:]
 		return data
