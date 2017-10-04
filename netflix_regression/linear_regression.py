@@ -9,6 +9,7 @@ from itertools import chain
 from multiprocessing.dummy import Pool as ThreadPool
 import datetime 
 from datetime import timedelta
+import file_reader
 
 def quantize(expected_ratings): 
 	expected_ratings[np.where(expected_ratings < 0.25)]  = 0.00
@@ -106,9 +107,9 @@ def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwarg
 	return weight, compute(weight, partitioned_train_ratings, partitioned_movie_features)
 
 def func(k): 
-	train_ratings  = read_from_file("movie-data\\ratings-train.csv", args)
-	_, _, movie_features = read_from_file("movie-data\\movie-features.csv", args)
-	weight, train_error = compute_train_error(train_ratings, movie_features, "k_fold", np.logspace(-5, 0, 100), k)
+	f = file_reader("movie-data\\movie-features.csv", "movie-data\\ratings-train.csv", _)
+	_, _, movie_features = f.read_movie_features(args)
+	weight, train_error = compute_train_error(f.read_train_data(args), movie_features, "k_fold", np.logspace(-5, 0, 100), k)
 	return train_error, weight
 
 def plot_data(title, xlabel, ylabel, x, y): 
@@ -144,46 +145,6 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 		weight, train_error = compute_train_error(train_ratings, movie_features, "lin_reg", None, None)
 		return train_error, compute_test_error(weight, test_ratings, movie_features)
 
-def read_from_file(filename, args):
-	data = np.genfromtxt(filename, delimiter = ',', dtype = float)
-	data = data[1:]
-	best_state = []
-	pearsonCoefficients = []
-	if(filename == "movie-data\\movie-features.csv"): 
-		with open("movie-data\\movie-features.csv") as f: 
-			labels = f.readline()
-			labels = labels.split(",")
-		minimum = -0.0001
-		featureDimension = len(data[0])
-		for i in range(1, featureDimension):
-			x = data[:,i]	
-			x_mean = np.mean(x)
-			x2_mean = np.mean(x * x)
-			for j in range(i+1, featureDimension): 
-				y = data[:,j]
-				y_mean = np.mean(y)
-				pearsonCoefficient = np.mean(x * y) - x_mean * y_mean/np.sqrt((x2_mean - x_mean * x_mean) * (np.mean(y * y) - (y_mean * y_mean)))
-				if(pearsonCoefficient < minimum):
-					best_state = [labels[i], labels[j], pearsonCoefficient]
-					minimum = pearsonCoefficient
-				pearsonCoefficients.append(pearsonCoefficient)
-		if(args.verbose == 3): 
-			temp = np.array([[0] * 172] * len(data))
-			temp[:,0:featureDimension] = data[:,0:featureDimension]
-			curr = featureDimension
-			for i in range(1, featureDimension): 
-				x = data[:,i]
-				for j in range(i+1, featureDimension):
-					y = data[:,j]
-					temp[:, curr] = x * y
-					curr = curr + 1
-			print(curr) 
-			return best_state, pearsonCoefficients, temp
-		else: 
-			return best_state, pearsonCoefficients, data
-	else:
-		return data
-
 def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	a = datetime.datetime.now()
 	error_train, error_test = linear_regression_with_regularization(movie_features, train_ratings, test_ratings, args)
@@ -215,11 +176,10 @@ if __name__ == "__main__":
 	)
 	parser.add_argument('-v', '--verbose', action="count", help = "used to switch between linear regression with and w/o cross_validation")
 	args = parser.parse_args()
-	best_state, pearsonCoefficients, movie_features = read_from_file("movie-data\\movie-features.csv", args)
-	test_ratings   = read_from_file("movie-data\\ratings-test.csv", args)
-	train_ratings = read_from_file("movie-data\\ratings-train.csv", args)
+	f = file_reader.file_reader("movie-data\\movie-features.csv", "movie-data\\ratings-train.csv", "movie-data\\ratings-test.csv")
+	best_state, pearsonCoefficients, movie_features = f.read_movie_features_file(args)
 	if(args.verbose != 0): 
-		regression_analysis(movie_features, train_ratings, test_ratings, args)
+		regression_analysis(movie_features, f.read_train_data(args), f.read_test_data(args), args)
 		print("pearson coefficient between %s and %s is %f" % (best_state[0], best_state[1], best_state[2]))	
 		plt.plot(pearsonCoefficients, 'g*')
 		plt.xlabel('genre tuple')
