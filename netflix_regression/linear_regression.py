@@ -194,8 +194,10 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	plt.plot(np.arange(0., len(error_test), 1), error_test)
 	plt.plot(np.arange(0., len(error_train), 1), error_train)
 	plt.show()
-	print("train error: %f" % (np.mean(error_train)))
-	print("test error: %f"  % (np.mean(error_test)))
+	print("train bias: %f" % (np.mean(error_train)))
+	print("train var: %f" % (np.var(error_train)))
+	print("test bias: %f"  % (np.mean(error_test)))
+	print("test var: %f" % (np.var(error_test)))
 
 
 if __name__ == "__main__": 

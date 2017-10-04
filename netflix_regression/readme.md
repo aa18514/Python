@@ -43,8 +43,8 @@ This yields a new dimension vector with a dimension of 190 <br>
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/non-linear-features.png" width="400" height="400" /> 
 </p>
 
-|  | Mean Test Error | Mean Train Error |
-| :---: | :-: | :-: |
-| Unregularized (Original Features) | 1.496136 | 0.523973 |
+|  | Mean Test Bias | Mean Train Bias | Mean Test Variance | Mean Train Variance |
+| :---: | :-: | :-: | :-:| :-: |
+| Unregularized (Original Features) | 1.496136 | 0.523973 | 1.742124 | 0.117886 |
 | Regularized (Original Features) | 1.428164 | 0.538644 |
 | Regularized (Transformed Features) | 1.451123 | 0.349376 | 
