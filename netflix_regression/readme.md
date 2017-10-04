@@ -40,6 +40,10 @@ This yields a new dimension vector with a dimension of 172 <br>
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/bias_against_K.png" width="400" height="400" />
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/variance_against_K.png" width="400" height = "400" /> 
 </div>
+
+<p align="center"> 
+	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/total_error.png" width="400" height="400" /> 
+</p>
 <div>
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/test_train_error.png" width="400" height="400" />
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/regression_without_regularization.png" width="400" height = "400" /> 
