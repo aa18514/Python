@@ -108,8 +108,7 @@ def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwarg
 def func(k): 
 	train_ratings  = read_from_file("movie-data\\ratings-train.csv", args)
 	_, _, movie_features = read_from_file("movie-data\\movie-features.csv", args)
-	values_of_lambda = np.logspace(-5, 0, 100)
-	weight, train_error = compute_train_error(train_ratings, movie_features, "k_fold", values_of_lambda, k)
+	weight, train_error = compute_train_error(train_ratings, movie_features, "k_fold", np.logspace(-5, 0, 100), k)
 	return train_error, weight
 
 def plot_data(title, xlabel, ylabel, x, y): 
@@ -128,8 +127,8 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 	if(args.verbose == 1 or args.verbose == 3): 
 		K = [2, 3, 4, 5, 6]
 		results = ThreadPool(5).map(func, K)
-		train_errors  = list(list(zip(*results)[0]))
-		final_weights = list(list(zip(*results)[1]))
+		train_errors  = list(list(zip(*results))[0])
+		final_weights = list(list(zip(*results))[1])
 		bias = np.array([])
 		variance = np.array([])
 		for i in range(len(K)):
@@ -169,7 +168,7 @@ def read_from_file(filename, args):
 					minimum = pearsonCoefficient
 				pearsonCoefficients.append(pearsonCoefficient)
 		if(args.verbose == 3): 
-			temp = np.array([[0] * 190] * len(data))
+			temp = np.array([[0] * 172] * len(data))
 			temp[:,0:featureDimension] = data[:,0:featureDimension]
 			curr = featureDimension
 			for i in range(1, featureDimension): 
@@ -177,7 +176,8 @@ def read_from_file(filename, args):
 				for j in range(i+1, featureDimension):
 					y = data[:,j]
 					temp[:, curr] = x * y
-					curr = curr + 1 
+					curr = curr + 1
+			print(curr) 
 			return best_state, pearsonCoefficients, temp
 		else: 
 			return best_state, pearsonCoefficients, data
