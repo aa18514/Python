@@ -112,24 +112,27 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 	if(args.verbose == 1 or args.verbose == 3): 
 		K = [2, 3, 4, 5, 6]
 		results = ThreadPool(5).map(func, K)
-		regularized_constants = list(list(zip(*results))[0])
-		train_errors  = list(list(zip(*results))[1])
-		final_weights = list(list(zip(*results))[2])
+		parsed_results = list(list(zip(*results)))
+		regularized_constants = parsed_results[0]
+		train_errors  = parsed_results[1]
+		final_weights = parsed_results[2]
 		bias = np.array([])
 		variance = np.array([])
+		error = np.array([])
 		users = np.arange(0, 671, 1)
 		for i in range(len(K)):
 			plt.xlabel('users')
 			plt.ylabel('values of lambda')
 			plt.title(' lambda vs users at K %f ' % K[i])
-			plt.show()
 			plt.plot(users, regularized_constants[i], 'g*')
+			plt.show()
 			bias = np.append(bias, np.mean(train_errors[i]))
 			variance = np.append(variance, np.var(train_errors[i]))
-		error = bias + variance
+			error = np.append(error, np.mean(train_errors[i]) + np.var(train_errors[i]))
 		plot_data('bias against K', 'K', 'bias train data', K, bias)
 		plot_data('variance against K', 'K', 'variance train data', K, variance)
 		plot_data('total error against K', 'K', 'error train data', K, error)
+		print(error)
 		minimum = np.argmin(error)
 		return train_errors[minimum], compute_test_error(final_weights[minimum], test_ratings, movie_features)
 	else: 
