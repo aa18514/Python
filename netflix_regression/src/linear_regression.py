@@ -9,7 +9,7 @@ from itertools import chain
 from multiprocessing.dummy import Pool as ThreadPool
 import datetime 
 from datetime import timedelta
-import file_reader
+from file_reader import file_reader
 
 def quantize(expected_ratings): 
 	expected_ratings[np.where(expected_ratings < 0.25)]  = 0.00
@@ -107,7 +107,7 @@ def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwarg
 	return weight, compute(weight, partitioned_train_ratings, partitioned_movie_features)
 
 def func(k): 
-	f = file_reader.file_reader("movie-data\\movie-features.csv", "movie-data\\ratings-train.csv", "movie-data\\ratings-test.csv")
+	f = file_reader("movie-data\\movie-features.csv", "movie-data\\ratings-train.csv", "movie-data\\ratings-test.csv")
 	_, _, movie_features = f.read_movie_features(args)
 	weight, train_error = compute_train_error(f.read_train_data(), movie_features, "k_fold", np.logspace(-5, 0, 100), k)
 	return train_error, weight
@@ -176,7 +176,7 @@ if __name__ == "__main__":
 	)
 	parser.add_argument('-v', '--verbose', action="count", help = "used to switch between linear regression with and w/o cross_validation")
 	args = parser.parse_args()
-	f = file_reader.file_reader("movie-data\\movie-features.csv", "movie-data\\ratings-train.csv", "movie-data\\ratings-test.csv")
+	f = file_reader("movie-data\\movie-features.csv", "movie-data\\ratings-train.csv", "movie-data\\ratings-test.csv")
 	best_state, pearsonCoefficients, movie_features = f.read_movie_features(args)
 	if(args.verbose != 0): 
 		regression_analysis(movie_features, f.read_train_data(), f.read_test_data(), args)
