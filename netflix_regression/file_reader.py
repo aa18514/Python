@@ -1,10 +1,12 @@
+import numpy as np 
+
 class file_reader:
 	def __init__(self, movie_features, train_file, test_file):
 		self.__movieFeatures = movie_features
 		self.__trainFile = train_file
 		self.__testFile = test_file
 
-	def read_movie_features(args): 
+	def read_movie_features(self, args): 
 		data = np.genfromtxt(self.__movieFeatures, delimiter = ',', dtype = float)
 		data = data[1:]
 		best_state = [] 
@@ -40,12 +42,12 @@ class file_reader:
 			else: 
 				return best_state, pearsonCoefficients, data
 	
-	def read_train_data(): 
+	def read_train_data(self): 
 		data = np.genfromtxt(self.__trainFile, delimiter = ',', dtype = float)
 		data = data[1:]
 		return data
 
-	def read_test_data(): 
+	def read_test_data(self): 
 		data = np.genfromtxt(self.__testFile, delimiter = ',', dtype = float)
 		data = data[1:]
 		return data

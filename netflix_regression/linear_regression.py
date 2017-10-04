@@ -107,9 +107,9 @@ def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwarg
 	return weight, compute(weight, partitioned_train_ratings, partitioned_movie_features)
 
 def func(k): 
-	f = file_reader("movie-data\\movie-features.csv", "movie-data\\ratings-train.csv", _)
+	f = file_reader.file_reader("movie-data\\movie-features.csv", "movie-data\\ratings-train.csv", "movie-data\\ratings-test.csv")
 	_, _, movie_features = f.read_movie_features(args)
-	weight, train_error = compute_train_error(f.read_train_data(args), movie_features, "k_fold", np.logspace(-5, 0, 100), k)
+	weight, train_error = compute_train_error(f.read_train_data(), movie_features, "k_fold", np.logspace(-5, 0, 100), k)
 	return train_error, weight
 
 def plot_data(title, xlabel, ylabel, x, y): 
@@ -177,9 +177,9 @@ if __name__ == "__main__":
 	parser.add_argument('-v', '--verbose', action="count", help = "used to switch between linear regression with and w/o cross_validation")
 	args = parser.parse_args()
 	f = file_reader.file_reader("movie-data\\movie-features.csv", "movie-data\\ratings-train.csv", "movie-data\\ratings-test.csv")
-	best_state, pearsonCoefficients, movie_features = f.read_movie_features_file(args)
+	best_state, pearsonCoefficients, movie_features = f.read_movie_features(args)
 	if(args.verbose != 0): 
-		regression_analysis(movie_features, f.read_train_data(args), f.read_test_data(args), args)
+		regression_analysis(movie_features, f.read_train_data(), f.read_test_data(), args)
 		print("pearson coefficient between %s and %s is %f" % (best_state[0], best_state[1], best_state[2]))	
 		plt.plot(pearsonCoefficients, 'g*')
 		plt.xlabel('genre tuple')
