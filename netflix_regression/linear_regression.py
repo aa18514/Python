@@ -108,9 +108,16 @@ def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwarg
 def func(k): 
 	train_ratings  = read_from_file("movie-data\\ratings-train.csv", args)
 	_, _, movie_features = read_from_file("movie-data\\movie-features.csv", args)
-	values_of_lambda = np.logspace(-4, 0, 50)
+	values_of_lambda = np.logspace(-5, 0, 100)
 	weight, train_error = compute_train_error(train_ratings, movie_features, "k_fold", values_of_lambda, k)
-	return (np.mean(train_error), train_error, weight, np.var(train_error))
+	return train_error, weight
+
+def plot_data(title, xlabel, ylabel, x, y): 
+	plt.xlabel(xlabel)
+	plt.ylabel(ylabel)
+	plt.title(title)
+	plt.plot(x, y)
+	plt.show()
 
 def linear_regression_with_regularization(movie_features, train_ratings, test_ratings, args):
 	"""a total of 671 users, 700003 movies.
@@ -121,21 +128,17 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 	if(args.verbose == 1 or args.verbose == 3): 
 		K = [2, 3, 4, 5, 6]
 		results = ThreadPool(5).map(func, K)
-		bias = list(list(zip(*results))[0])
-		train_errors   = list(list(zip(*results))[1])
-		final_weights  = list(list(zip(*results))[2])
-		variance = list(list(zip(*results))[3])
-		plt.xlabel('K')
-		plt.ylabel('bias train data')
-		plt.title('bias against K')
-		plt.plot(K, bias)
-		plt.show()
-		plt.title('variance against K')
-		plt.xlabel('K')
-		plt.ylabel('variance train data')
-		plt.plot(K, variance)
-		plt.show()
-		error = np.array(bias) + np.array(variance)
+		train_errors  = list(list(zip(*results)[0]))
+		final_weights = list(list(zip(*results)[1]))
+		bias = np.array([])
+		variance = np.array([])
+		for i in range(len(K)):
+			bias = np.append(bias, np.mean(train_errors[i]))
+			variance = np.append(variance, np.var(train_errors[i]))
+		error = bias + variance
+		plot_data('bias against K', 'K', 'bias train data', K, bias)
+		plot_data('variance against K', 'K', 'variance train data', K, variance)
+		plot_data('total error against K', 'K', 'error train data', K, error)
 		minimum = np.argmin(error)
 		return train_errors[minimum], compute_test_error(final_weights[minimum], test_ratings, movie_features)
 	else: 
@@ -154,19 +157,26 @@ def read_from_file(filename, args):
 		minimum = -0.0001
 		featureDimension = len(data[0])
 		for i in range(1, featureDimension):
+			x = data[:,i]	
+			x_mean = np.mean(x)
+			x2_mean = np.mean(x * x)
 			for j in range(i+1, featureDimension): 
-				pearsonCoefficient = np.mean(data[:,i] * data[:,j]) - np.mean(data[:,i]) * np.mean(data[:,j])/np.sqrt((np.mean(data[:,i] * data[:,i]) - (np.mean(data[:,i]) * np.mean(data[:,i]))) * (np.mean(data[:,j] * data[:,j]) - (np.mean(data[:,j]) * np.mean(data[:,j]))))
+				y = data[:,j]
+				y_mean = np.mean(y)
+				pearsonCoefficient = np.mean(x * y) - x_mean * y_mean/np.sqrt((x2_mean - x_mean * x_mean) * (np.mean(y * y) - (y_mean * y_mean)))
 				if(pearsonCoefficient < minimum):
 					best_state = [labels[i], labels[j], pearsonCoefficient]
 					minimum = pearsonCoefficient
 				pearsonCoefficients.append(pearsonCoefficient)
 		if(args.verbose == 3): 
 			temp = np.array([[0] * 190] * len(data))
-			temp[:,1:19] = data[:,0:18]
-			curr = 0
-			for i in range(1, 19): 
-				for j in range(i+1, 19):
-					temp[:, curr] = data[:,i] * data[:,j]
+			temp[:,0:featureDimension] = data[:,0:featureDimension]
+			curr = featureDimension
+			for i in range(1, featureDimension): 
+				x = data[:,i]
+				for j in range(i+1, featureDimension):
+					y = data[:,j]
+					temp[:, curr] = x * y
 					curr = curr + 1 
 			return best_state, pearsonCoefficients, temp
 		else: 
