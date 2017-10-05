@@ -86,11 +86,14 @@ def func(k):
 	regularized_constants, weight, train_error = compute_train_error(f.read_train_data(), movie_features, "k_fold", np.logspace(-4, 0, 50), k)
 	return regularized_constants, train_error, weight
 
-def plot_data(title, xlabel, ylabel, x, y): 
+def plot_data(title, xlabel, ylabel, x, y, *args, **kwargs): 
 	plt.xlabel(xlabel)
 	plt.ylabel(ylabel)
 	plt.title(title)
-	plt.plot(x, y)
+	if args == None: 
+		plt.plot(x, y)
+	else:
+		plt.plot(x, y, args[0])
 	plt.show()
 
 def linear_regression_with_regularization(movie_features, train_ratings, test_ratings, args):
@@ -111,11 +114,8 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 		error = np.array([])
 		users = np.arange(0, 671, 1)
 		for i in range(len(K)):
-			plt.xlabel('users')
-			plt.ylabel('values of lambda')
-			plt.title(' lambda vs users at K %f ' % K[i])
-			plt.plot(users, regularized_constants[i], 'g*')
-			plt.show()
+			title = (' lambda vs users at K %f' % K[i])
+			plot_data(title, 'users', 'values of lambda', users, regularized_constants[i], 'g*')
 			bias = np.append(bias, np.mean(train_errors[i]))
 			variance = np.append(variance, np.var(train_errors[i]))
 			error = np.append(error, np.mean(train_errors[i]) + np.var(train_errors[i]))
@@ -138,7 +138,7 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	plt.plot(np.arange(0., len(error_test), 1), error_test)
 	plt.plot(np.arange(0., len(error_train), 1), error_train)
 	plt.show()
-	print("program took: %f" % ((b-a).total_seconds()))
+	print("program took: %f s" % ((b-a).total_seconds()))
 	print("train bias: %f"  % (np.mean(error_train)))
 	print("train var:  %f"  % (np.var(error_train)))
 	print("test bias:  %f"  % (np.mean(error_test)))
