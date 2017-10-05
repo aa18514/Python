@@ -93,7 +93,7 @@ def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwarg
 def func(k): 
 	f = file_reader("movie-data\\movie-features.csv", "movie-data\\ratings-train.csv", "movie-data\\ratings-test.csv")
 	_, _, movie_features = f.read_movie_features(args)
-	regularized_constants, weight, train_error = compute_train_error(f.read_train_data(), movie_features, "k_fold", np.logspace(-5, 1, 100), k)
+	regularized_constants, weight, train_error = compute_train_error(f.read_train_data(), movie_features, "k_fold", np.logspace(-4, 0, 50), k)
 	return regularized_constants, train_error, weight
 
 def plot_data(title, xlabel, ylabel, x, y): 
