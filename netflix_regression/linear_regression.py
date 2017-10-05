@@ -8,6 +8,7 @@ import textwrap
 from itertools import chain
 from multiprocessing.dummy import Pool as ThreadPool
 import datetime 
+from sklearn.cross_validation import KFold
 from datetime import timedelta
 from file_reader import file_reader
 
@@ -31,16 +32,12 @@ def train_dataset(featureDimension, features, ratings, lambd_val):
 
 def k_fold_algorithm(movie_ratings, featureDimension, res, values_of_lambda, K):
 	errors = []
-	limits = np.array([[0] * (K + 1)])
-	subset_size = int(len(movie_ratings)/K) 
-	mod = len(movie_ratings) % K
-	limits[:,1:(mod + 1)] = np.arange(1, mod + 1, 1) * (subset_size + 1)
-	limits[:,(mod+1):len(limits[0])] = (np.arange(1, len(limits[0]) - mod, 1) * (subset_size)) + (mod * (subset_size + 1))
-	for i in range(0, K):
-		features_train = np.append(movie_ratings[:int(limits[:,i]):,], movie_ratings[int(limits[:,i+1]):len(movie_ratings):,])
-		features_test  = movie_ratings[int(limits[:,i]) : int(limits[:,i+1])]
-		ratings_train  = np.append(res[0:int(limits[:,i]):,], res[int(limits[:,i+1]):len(res):,]) 
-		ratings_test   = res[int(limits[:,i]):int(limits[:,i+1])]
+	cv = KFold(len(movie_ratings), n_folds = K)
+	for obj in cv: 
+		features_train = movie_ratings[obj[0]]
+		ratings_train = res[obj[0]]
+		features_test = movie_ratings[obj[1]]
+		ratings_test = res[obj[1]]
 		error = [] 
 		for value in values_of_lambda:
 			weight = train_dataset(featureDimension, features_train, ratings_train, value)
@@ -67,6 +64,7 @@ def extract_person(ratings, algorithm, movie_features, *args, **kwargs):
 		weight = []
 		regularized_constants = []
 		for i in range(0, 671):
+			print(i)
 			person = ratings[ratings[:,0] == i + 1]
 			movie_ratings = movie_features[person[:,1] - 1]
 			partitioned_movie_features.append(movie_ratings)
