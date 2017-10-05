@@ -34,14 +34,10 @@ def k_fold_algorithm(movie_ratings, featureDimension, res, values_of_lambda, K):
 	errors = []
 	cv = KFold(len(movie_ratings), n_folds = K)
 	for obj in cv: 
-		features_train = movie_ratings[obj[0]]
-		ratings_train = res[obj[0]]
-		features_test = movie_ratings[obj[1]]
-		ratings_test = res[obj[1]]
 		error = [] 
 		for value in values_of_lambda:
-			weight = train_dataset(featureDimension, features_train, ratings_train, value)
-			error.append(compute_error(weight, ratings_test, features_test))
+			weight = train_dataset(featureDimension, movie_ratings[[obj][0]], res[[obj][0]], value)
+			error.append(compute_error(weight, res[[obj][1]], movie_ratings[[obj][1]]))
 		errors.append(error)
 	errors = np.sum(errors, axis = 0, keepdims = True)
 	reg_constant = values_of_lambda[np.argmin(errors)]
@@ -64,7 +60,6 @@ def extract_person(ratings, algorithm, movie_features, *args, **kwargs):
 		weight = []
 		regularized_constants = []
 		for i in range(0, 671):
-			print(i)
 			person = ratings[ratings[:,0] == i + 1]
 			movie_ratings = movie_features[person[:,1] - 1]
 			partitioned_movie_features.append(movie_ratings)
