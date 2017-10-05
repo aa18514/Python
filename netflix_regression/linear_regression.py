@@ -36,8 +36,8 @@ def k_fold_algorithm(movie_ratings, featureDimension, res, values_of_lambda, K):
 	for obj in cv: 
 		error = [] 
 		for value in values_of_lambda:
-			weight = train_dataset(featureDimension, movie_ratings[[obj][0]], res[[obj][0]], value)
-			error.append(compute_error(weight, res[[obj][1]], movie_ratings[[obj][1]]))
+			weight = train_dataset(featureDimension, movie_ratings[obj[0]], res[obj[0]], value)
+			error.append(compute_error(weight, res[obj[1]], movie_ratings[obj[1]]))
 		errors.append(error)
 	errors = np.sum(errors, axis = 0, keepdims = True)
 	reg_constant = values_of_lambda[np.argmin(errors)]
@@ -70,13 +70,10 @@ def extract_person(ratings, algorithm, movie_features, *args, **kwargs):
 				regularized_constants.append(rg_constant)
 			elif(algorithm == "lin_reg"): 
 				weight.append(naive_linear_regression(movie_ratings, person[:,2]))
-		if(algorithm == "None"):
-			return partitioned_ratings, partitioned_movie_features
-		else: 
-			return regularized_constants, np.array(partitioned_ratings), np.array(partitioned_movie_features), np.array(weight)
+		return regularized_constants, np.array(partitioned_ratings), np.array(partitioned_movie_features), weight
 
 def compute_test_error(weight, test_ratings, movie_features):
-	partitioned_test_ratings, partitioned_movie_features = extract_person(test_ratings, "None", movie_features)
+	_, partitioned_test_ratings, partitioned_movie_features, _ = extract_person(test_ratings, "None", movie_features)
 	return compute(weight, partitioned_test_ratings, partitioned_movie_features)
 
 def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwargs):
@@ -136,16 +133,16 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	a = datetime.datetime.now()
 	error_train, error_test = linear_regression_with_regularization(movie_features, train_ratings, test_ratings, args)
 	b = datetime.datetime.now()
-	print((b - a).total_seconds())
 	plt.xlabel("users")
 	plt.ylabel("squared error")
 	plt.plot(np.arange(0., len(error_test), 1), error_test)
 	plt.plot(np.arange(0., len(error_train), 1), error_train)
 	plt.show()
-	print("train bias: %f" % (np.mean(error_train)))
-	print("train var: %f"  % (np.var(error_train)))
-	print("test bias: %f"  % (np.mean(error_test)))
-	print("test var: %f"   % (np.var(error_test)))
+	print("program took: %f" % ((b-a).total_seconds()))
+	print("train bias: %f"  % (np.mean(error_train)))
+	print("train var:  %f"  % (np.var(error_train)))
+	print("test bias:  %f"  % (np.mean(error_test)))
+	print("test var:   %f"  % (np.var(error_test)))
 
 
 if __name__ == "__main__": 
