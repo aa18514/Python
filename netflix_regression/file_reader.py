@@ -7,9 +7,11 @@ class file_reader:
 		self.__trainFile = train_file
 		self.__testFile = test_file
 
-	def calculate_correlation_coeff(data):
+	def calculate_correlation_coeff(self, labels, data):
 		best_state = [] 
 		pearsonCoefficients = []
+		featureDimension = len(data[0])
+		minimum = -0.0001
 		x = data[:,1:featureDimension]
 		x_mean = np.mean(x, keepdims = True, axis = 0)
 		x2_mean = np.mean(x**2, keepdims = True, axis = 0)
@@ -31,10 +33,9 @@ class file_reader:
 		with open(self.__movieFeatures) as f: 
 			labels = f.readline()
 			labels = labels.split()
-			minimum = -0.0001
 			featureDimension = len(data[0])
 			a = datetime.datetime.now()
-			best_state, pearsonCoefficients = calculate_correlation_coeff(data)
+			best_state, pearsonCoefficients = self.calculate_correlation_coeff(labels, data)
 			b = datetime.datetime.now()
 			print((b-a).total_seconds())
 			if(args.verbose == 3): 
