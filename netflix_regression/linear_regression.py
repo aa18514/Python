@@ -90,7 +90,7 @@ def plot_data(title, xlabel, ylabel, x, y, *args, **kwargs):
 	plt.xlabel(xlabel)
 	plt.ylabel(ylabel)
 	plt.title(title)
-	if args == None: 
+	if len(args) == 0: 
 		plt.plot(x, y)
 	else:
 		plt.plot(x, y, args[0])
@@ -118,7 +118,7 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 			plot_data(title, 'users', 'values of lambda', users, regularized_constants[i], 'g*')
 			bias = np.append(bias, np.mean(train_errors[i]))
 			variance = np.append(variance, np.var(train_errors[i]))
-			error = np.append(error, np.mean(train_errors[i]) + np.var(train_errors[i]))
+		error = np.append(error, train_errors + train_errors)
 		plot_data('bias against K', 'K', 'bias train data', K, bias)
 		plot_data('variance against K', 'K', 'variance train data', K, variance)
 		plot_data('total error against K', 'K', 'error train data', K, error)
