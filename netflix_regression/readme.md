@@ -57,4 +57,4 @@ This yields a new dimension vector with a dimension of 172 <br>
 | :---: | :-: | :-: | :-:| :-: |
 | **Unregularized (Original Features)**  | 1.567320 | 0.561700 | 1.809461 | 0.131361 |
 | **Regularized (Original Features)**    | 1.518431 | 0.574006 | 1.365711 | 0.130602 |
-| **Regularized (Transformed Features)** | 1.548734 | 0.474220 | 1.215245 | 0.115966 | 
+| **Regularized (Transformed Features)** | 1.617370 | 0.431161 | 1.343438 | 0.100816 | 

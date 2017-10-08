@@ -48,7 +48,7 @@ class file_reader:
 			std = np.std(temp[:,1:172], axis = 1, keepdims = True)
 			std[std == 0] = 0.0001
 			temp[:,1:172] = (temp[:,1:172] - mean)/std
-			return temp 
+		return temp 
 
 	def read_movie_features(self, args): 
 		with open(self.__movieFeatures) as f: 
