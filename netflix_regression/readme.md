@@ -56,5 +56,5 @@ This yields a new dimension vector with a dimension of 172 <br>
 |  | Mean Test Bias | Mean Train Bias | Mean Test Variance | Mean Train Variance |
 | :---: | :-: | :-: | :-:| :-: |
 | **Unregularized (Original Features)**  | 1.567320 | 0.561700 | 1.809461 | 0.131361 |
-| **Regularized (Original Features)**    | 1.501076 | 0.611829 | 1.335259 | 0.147195 |
+| **Regularized (Original Features)**    | 1.518431 | 0.574006 | 1.365711 | 0.130602 |
 | **Regularized (Transformed Features)** | 1.804665 | 0.296960 | 1.236013 | 0.061122 | 

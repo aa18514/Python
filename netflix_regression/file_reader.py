@@ -33,7 +33,7 @@ class file_reader:
 				pearsonCoefficients.append(pearsonCoefficient)
 		return best_state, pearsonCoefficients	
 
-	def non_linear_transformation():
+	def non_linear_transformation(self):
 		featureDimension = len(self.data['movies'][0])
 		temp = np.array([[0] * 172] * len(self.data['movies']))
 		temp[:,0:featureDimension] = self.data['movies'][:,0:featureDimension]
