@@ -103,7 +103,7 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 	linear regression with regularization, 
 	and non -linear transformation """
 	if(args.verbose == 1 or args.verbose == 3): 
-		K = [2, 3, 4, 5, 6]
+		K = [2, 3, 4, 5, 6, 7, 8]
 		results = ThreadPool(5).map(func, K)
 		parsed_results = list(list(zip(*results)))
 		regularized_constants = parsed_results[0]

@@ -33,6 +33,13 @@ class file_reader:
 				pearsonCoefficients.append(pearsonCoefficient)
 		return best_state, pearsonCoefficients	
 
+	def scale_features(self, features):
+		mean = np.mean(features[:,1:len(features[0])], axis = 1, keepdims = True)
+		std = np.std(features[:,1:len(features[0])], axis = 1, keepdims = True)
+		std[std == 0] = 0.0001
+		features[:,1:len(features[0])] = (features[:,1:len(features[0])] - mean)/std
+		return features
+
 	def non_linear_transformation(self):
 		featureDimension = len(self.data['movies'][0])
 		temp = np.array([[0] * 172] * len(self.data['movies']))
@@ -44,10 +51,6 @@ class file_reader:
 				y = self.data['movies'][:,j]
 				temp[:,curr] = x * y
 				curr = curr + 1 
-			mean = np.mean(temp[:,1:172], axis = 1, keepdims = True)
-			std = np.std(temp[:,1:172], axis = 1, keepdims = True)
-			std[std == 0] = 0.0001
-			temp[:,1:172] = (temp[:,1:172] - mean)/std
 		return temp 
 
 	def read_movie_features(self, args): 
@@ -61,12 +64,7 @@ class file_reader:
 			print((b-a).total_seconds())
 			if(args.verbose == 3): 
 				self.data['movies'] = self.non_linear_transformation()
-			else: 
-				mean = np.mean(self.data['movies'][:,1:19], axis = 1, keepdims = True )
-				std = np.std(self.data['movies'][:,1:19], axis = 1, keepdims = True)
-				std[std == 0] = 0.0001
-				self.data['movies'][:,1:19] = (self.data['movies'][:,1:19] - mean)/std
-			return best_state, pearsonCoefficients, self.data['movies']
+			return best_state, pearsonCoefficients, self.scale_features(self.data['movies'])
 	
 	def read_train_data(self):
 		return self.data['train']
