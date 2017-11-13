@@ -134,7 +134,7 @@ def exponential_weightings(error, beta):
 	error = (1 - beta) * error
 	vs = []
 	for i in range(len(error)):
-		vo = (beta * vo + error[i])/(1.0 - ((beta)**(i + 1)))
+		vo = (beta * vo + error[i])
 		vs.append(vo)
 	return vs
 
@@ -144,7 +144,7 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	b = datetime.datetime.now()
 	plt.xlabel("users")
 	plt.ylabel("exponentially weighted squared error")
-	beta = 0.7
+	beta = 0.9
 	exponentially_weighted_test_average = exponential_weightings(error_test, beta)
 	exponentially_weighted_train_average = exponential_weightings(error_train, beta)
 	plt.plot(np.arange(0., len(error_test), 1), exponentially_weighted_test_average)
