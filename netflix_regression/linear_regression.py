@@ -129,14 +129,26 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 		_, weight, train_error = compute_train_error(train_ratings, movie_features, "lin_reg", None, None)
 		return train_error, compute_test_error(weight, test_ratings, movie_features)
 
+def exponential_weightings(error, beta): 
+	vo = 0.0
+	error = (1 - beta) * error
+	vs = []
+	for i in range(len(error)):
+		vo = beta * vo + error[i]
+		vs.append(vo)
+	return vs
+
 def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	a = datetime.datetime.now()
 	error_train, error_test = linear_regression_with_regularization(movie_features, train_ratings, test_ratings, args)
 	b = datetime.datetime.now()
 	plt.xlabel("users")
-	plt.ylabel("squared error")
-	plt.plot(np.arange(0., len(error_test), 1), error_test)
-	plt.plot(np.arange(0., len(error_train), 1), error_train)
+	plt.ylabel("exponentially weighted squared error")
+	beta = 0.9
+	exponentially_weighted_test_average = exponential_weightings(error_test, beta)
+	exponentially_weighted_train_average = exponential_weightings(error_train, beta)
+	plt.plot(np.arange(0., len(error_test), 1), exponentially_weighted_test_average)
+	plt.plot(np.arange(0., len(error_train), 1), exponentially_weighted_train_average)
 	plt.show()
 	print("program took: %f s" % ((b-a).total_seconds()))
 	print("train bias: %f"  % (np.mean(error_train)))
