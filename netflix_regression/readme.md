@@ -12,8 +12,11 @@ x[0] is used for the constant offset term, the rest of the terms represent diffe
 The predictor function, y_hat represents the expected rating <br>
 The target function, y represents the actual rating <br> 
 ## Stratagies
+
 ### Prepocessing the input features
-training data(x[1:,]) is normalized to zero mean and unit variance, the same parameters are used to normalize the test data set <br>
+training data feature vector x[1:,] is normalized to zero mean and unit variance, the same parameters are used to normalize the test data set <br>
+In order to ensure numerical stability when the variance is equal to zero, a value of epsilon equal to 10**-8 has been added to the variance.
+
 ### Controlling Overfitting
 L2 regularization is used to reduce overfitting (https://en.wikipedia.org/wiki/Overfitting) and improve test accuracy <br> 
 We learn the regularized weights for each user seperately which leads to higher bias and lower bias as compared to taking a single <br> 
