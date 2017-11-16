@@ -69,7 +69,8 @@ def extract_person(ratings, algorithm, movie_features, *args, **kwargs):
 				weight.append(w)
 				regularized_constants.append(rg_constant)
 			elif(algorithm == "lin_reg"): 
-				weight.append(naive_linear_regression(movie_ratings, person[:,2]))
+				w = naive_linear_regression(movie_ratings, person[:,2])
+				weight.append([[w] for i in range(len(movie_ratings))])
 		return regularized_constants, np.array(partitioned_ratings), np.array(partitioned_movie_features), weight
 
 def compute_test_error(weight, test_ratings, movie_features):
@@ -139,16 +140,14 @@ def exponential_weightings(error, beta):
 	return vs
 
 def regression_analysis(movie_features, train_ratings, test_ratings, args):
+	beta = 0.9
 	a = datetime.datetime.now()
 	error_train, error_test = linear_regression_with_regularization(movie_features, train_ratings, test_ratings, args)
 	b = datetime.datetime.now()
 	plt.xlabel("users")
 	plt.ylabel("exponentially weighted squared error")
-	beta = 0.9
-	exponentially_weighted_test_average = exponential_weightings(error_test, beta)
-	exponentially_weighted_train_average = exponential_weightings(error_train, beta)
-	plt.plot(np.arange(0., len(error_test), 1), exponentially_weighted_test_average)
-	plt.plot(np.arange(0., len(error_train), 1), exponentially_weighted_train_average)
+	plt.plot(np.arange(0., len(error_test), 1), exponential_weightings(error_test, beta))
+	plt.plot(np.arange(0., len(error_train), 1), exponential_weightings(error_train, beta))
 	plt.show()
 	print("program took: %f s" % ((b-a).total_seconds()))
 	print("train bias: %f"  % (np.mean(error_train)))

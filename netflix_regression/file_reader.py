@@ -1,5 +1,6 @@
 import numpy as np 
 import datetime
+from sklearn.decomposition import PCA
 
 class file_reader:
 	data = {}
@@ -35,10 +36,21 @@ class file_reader:
 
 	def scale_features(self, features):
 		mean = np.mean(features[:,1:len(features[0])], axis = 1, keepdims = True)
-		std = np.std(features[:,1:len(features[0])], axis = 1, keepdims = True)
-		std[std == 0] = 0.0001
+		std = np.std(features[:,1:len(features[0])], axis = 1, keepdims = True) + 10**-8
 		features[:,1:len(features[0])] = (features[:,1:len(features[0])] - mean)/std
 		return features
+
+	def compute_pca(self, x):
+		result = np.array([[1.0] * 31] * len(self.data['movies']))
+		pca = PCA(n_components = 30)
+		pca.fit(x)
+		comp = pca.components_
+		#print(comp)
+		result[:,1:31] = np.dot(x, comp.T)
+		print(result)
+		return result 
+
+
 
 	def non_linear_transformation(self):
 		featureDimension = len(self.data['movies'][0])
@@ -51,7 +63,10 @@ class file_reader:
 				y = self.data['movies'][:,j]
 				temp[:,curr] = x * y
 				curr = curr + 1 
-		return temp 
+		temp = self.scale_features(temp)
+		pca_features = self.compute_pca(temp[:,1:172])
+		print(pca_features)
+		return pca_features
 
 	def read_movie_features(self, args): 
 		with open(self.__movieFeatures) as f: 
@@ -64,7 +79,7 @@ class file_reader:
 			print((b-a).total_seconds())
 			if(args.verbose == 3): 
 				self.data['movies'] = self.non_linear_transformation()
-			return best_state, pearsonCoefficients, self.scale_features(self.data['movies'])
+			return best_state, pearsonCoefficients, self.data['movies']
 	
 	def read_train_data(self):
 		return self.data['train']

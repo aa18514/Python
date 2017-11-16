@@ -196,6 +196,8 @@ def initialize_parameters():
     
     return parameters
 
+keep_prob = tf.placeholder(tf.float32)
+
 def forward_propagation(X, parameters):
     """
     Implements the forward propagation for the model: LINEAR -> RELU -> LINEAR -> RELU -> LINEAR -> SOFTMAX
@@ -216,11 +218,13 @@ def forward_propagation(X, parameters):
     W3 = parameters['W3']
     b3 = parameters['b3']
     
-    Z1 = tf.matmul(W1, X) + b1                                           
-    A1 = tf.nn.relu(Z1)                                           
-    Z2 = tf.matmul(W2, A1) + b2                                     
-    A2 = tf.nn.relu(Z2)                                              
-    Z3 = tf.matmul(W3, A2) + b3                                              
+    X = tf.nn.dropout(X, keep_prob)   
+    Z1 = tf.matmul(W1, X) + b1
+    A1 = tf.nn.relu(Z1) 
+    drop_out = tf.nn.dropout(A1, keep_prob)                              
+    Z2 = tf.matmul(W2, drop_out) + b2                         
+    A2 = tf.nn.relu(Z2) 
+    Z3 = tf.matmul(W3, A2) + b3
     return Z3
 
 
@@ -245,8 +249,8 @@ def compute_cost(Z3, Y):
     return cost
 
 
-def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.0001,
-          num_epochs = 1500, minibatch_size = 32, print_cost = True):
+def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.00001,
+          num_epochs = 1500, minibatch_size = 16, print_cost = True):
     """
     Implements a three-layer tensorflow neural network: LINEAR->RELU->LINEAR->RELU->LINEAR->SOFTMAX.
     
@@ -273,8 +277,14 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.0001,
     parameters = initialize_parameters()
     Z3 = forward_propagation(X, parameters)
     cost = compute_cost(Z3, Y)
-    
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate = learning_rate).minimize(cost)
+    global_step = tf.Variable(0, trainable=False)
+    starter_learning_rate = 0.0001
+    learning_rate = tf.train.exponential_decay(starter_learning_rate, global_step,
+                                           10000, 0.96, staircase=True)
+    optimizer = (
+        tf.train.AdamOptimizer(learning_rate)
+        .minimize(cost, global_step=global_step)
+    )
     init = tf.global_variables_initializer()
     with tf.Session() as sess:
         sess.run(init)
@@ -287,7 +297,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.0001,
 
             for minibatch in minibatches:
                 (minibatch_X, minibatch_Y) = minibatch
-                _ , minibatch_cost = sess.run([optimizer, cost], feed_dict={X:minibatch_X, Y: minibatch_Y})
+                _ , minibatch_cost = sess.run([optimizer, cost], feed_dict={X:minibatch_X, Y: minibatch_Y, keep_prob : 0.90})
                 epoch_cost += minibatch_cost / num_minibatches
             if print_cost == True and epoch % 100 == 0:
                 print ("Cost after epoch %i: %f" % (epoch, epoch_cost))
@@ -302,8 +312,8 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.0001,
         print ("Parameters have been trained!")
         correct_prediction = tf.equal(tf.argmax(Z3), tf.argmax(Y))
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-        print ("Train Accuracy:", accuracy.eval({X: X_train, Y: Y_train}))
-        print ("Test Accuracy:", accuracy.eval({X: X_test, Y: Y_test}))
+        print ("Train Accuracy:", accuracy.eval({X: X_train, Y: Y_train, keep_prob : 1}))
+        print ("Test Accuracy:", accuracy.eval({X: X_test, Y: Y_test, keep_prob : 1}))
         return parameters
 
 parameters = model(X_train, Y_train, X_test, Y_test)
