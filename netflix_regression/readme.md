@@ -79,4 +79,7 @@ taking the value of beta equal to 0.9 is analagous to taking the mean over the l
 | :---: | :-: | :-: | :-:| :-: | :-: |
 | **Unregularized (Original Features)**  | 1.932715 | 0.564595 | 2.416220 | 0.130706  | 006.669397 |
 | **Regularized (Original Features)**    | 1.889901 | 0.572407 | 2.276397 | 0.129983  | 476.689539 |
-| **Regularized (Transformed Features)** | 1.300464 | 0.595549 | 0.770308 | 0.125738 | 0          |
+| **Regularized (Transformed Features)** | 3.869358 | 0.297641 | 5.153465 | 0.068069  | 2100.70408 |
+        
+It can be observed that the test bias for transformed features (regularized) increases from 1.889901 to 3.86938, while the train bias for transformed features (regularized) decreases <br> 
+substantially from 0.572407 which suggests that wee have over-fitted to the training dataset due to the non-linear transformation <br> 

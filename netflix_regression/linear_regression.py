@@ -28,7 +28,7 @@ def compute_error(weights, test_ratings, movie_features):
 	return(np.mean((expected_ratings - test_ratings)**2))
 
 def train_dataset(featureDimension, features, ratings, lambd_val):
-	clf = linear_model.Ridge(alpha=lambd_val, normalize = False, fit_intercept = False, solver = 'svd')
+	clf = linear_model.Ridge(alpha=lambd_val, normalize = False, fit_intercept = False, solver = 'lsqr')
 	clf.fit(features.reshape(len(ratings), featureDimension),ratings)
 	return clf.coef_
 
@@ -69,7 +69,9 @@ def processInput(i, ratings, movie_features, algorithm, args):
 		rg_constant, w = k_fold_algorithm(movie_ratings, featureDimension, person[:,2], args[0], args[1])
 	return [rg_constant], movie_ratings, person[:,2], w, [i]
 
-def extract_person(ratings, algorithm, movie_features, *args, **kwargs): 
+def extract_person(ratings, algorithm, movie_features, *args, **kwargs):
+		print("extract person")
+		print(algorithm) 
 		j = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(delayed(processInput)(i, ratings, movie_features, algorithm, args) for i in range(671)))
 		regularized_constants = np.array([x for _,x in sorted(zip(j[:,4], j[:,0]))])
 		weight = np.array([x for _,x in sorted(zip(j[:,4],j[:,3]))])
@@ -107,14 +109,14 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 	and non -linear transformation """
 	means = []
 	std = []
-	means = np.mean(movie_features[train_ratings[:,1] - 1][:,1:], axis = 0)
-	stds = np.std(movie_features[train_ratings[:,1] - 1][:,1:], axis = 0)
 	if(args.verbose == 3):
 		n_features = 172
 	else:
 		n_features = 19
 	n_features += 1 
 	b = np.ones((70002,n_features))
+	means = np.mean(movie_features[train_ratings[:,1] - 1][:,1:], axis = 0)
+	stds = np.std(movie_features[train_ratings[:,1] - 1][:,1:], axis = 0)
 	b[:,2:] = (movie_features[train_ratings[:,1] - 1][:,1:] - means)/(stds + 10**-8) 
 	b[:,0] = train_ratings[:,1]
 	#s = f.compute_pca(features)
