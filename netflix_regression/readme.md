@@ -31,8 +31,11 @@ the feature vector is 172 <br>
 ### Controlling Overfitting
 
 L2 regularization is used to reduce overfitting (https://en.wikipedia.org/wiki/Overfitting) and improve test accuracy <br> 
-We learn the regularized weights for each user seperately which leads to higher bias and lower bias as compared to taking a single <br> 
+We learn the regularized weights for each user seperately which leads to higher bias and lower bias as compared to taking a single 
 regularized weight vector for all the users <br> 
+
+Values of lambda were taken to be 10**x where a 100 samples of x are taken between -5 and 0, by invoking the function np.logspace(-5, 0, 100). 
+
 The following graph shows the lambda values for all 671 users: 
 <p align="center"> 
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/lambda_values.png" /> 
