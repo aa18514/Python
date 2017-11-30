@@ -44,12 +44,13 @@ class file_reader:
 		return features
 
 	def compute_pca(self, x):
-		result = np.array([[1.0] * 31] * len(self.data['movies']))
-		pca = PCA(n_components = 30)
+		#print(len(x))
+		result = np.array([[1.0] * 15] * len(x))
+		pca = PCA(n_components = 14)
 		pca.fit(x)
 		comp = pca.components_
 		#print(comp)
-		result[:,1:31] = np.dot(x, comp.T)
+		result[:,1:15] = np.dot(x, comp.T)
 		print(result)
 		return result 
 

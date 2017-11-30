@@ -58,7 +58,7 @@ def compute(weight, partitioned_test_ratings, partitioned_movie_features):
 
 def processInput(i, ratings, movie_features, algorithm, args):
 	person = ratings[(ratings[:,0] - 1) == i]
-	movie_ratings = movie_features[np.where(ratings[:,0] - 1 == i)][:,1:20]
+	movie_ratings = movie_features[np.where(ratings[:,0] - 1 == i)][:,1:7]
 	featureDimension = len(movie_ratings[0])
 	w = None
 	rg_constant = None
@@ -98,24 +98,32 @@ def plot_data(title, xlabel, ylabel, x, y, *args, **kwargs):
 		plt.plot(x, y, args[0])
 	plt.show()
 
-def linear_regression_with_regularization(movie_features, train_ratings, test_ratings, args):
+def linear_regression_with_regularization(f, train_ratings, test_ratings, args):
 	"""a total of 671 users, 700003 movies.
 	the function handles linear_model			
 	regression for each user, 
 	linear regression with regularization, 
 	and non -linear transformation """
-	features = movie_features[train_ratings[:,1] - 1]
-	means = np.mean(features[:,1:len(features[0])], axis = 0, keepdims = True)
-	stds = np.std(features[:,1:len(features[0])], axis = 0, keepdims = True) + 10**-8
-	features[:,1:len(features[0])] = (features[:,1:len(features[0])] - means)/stds
-	b = np.zeros((70002,20))
-	b[:,1:20] = features[:,0:19]
+	means = []
+	std = []
+	_, _, movie_features = f.read_movie_features(args)
+	means = np.mean(movie_features[:,1:19], axis = 0)
+	stds = np.std(movie_features[:,1:19], axis = 0)
+	b = np.ones((70002,20))
+	b[:,2:20] = (movie_features[train_ratings[:,1] - 1][:,1:19] - means)/stds 
+	print(b[:,1:20])
 	b[:,0] = train_ratings[:,1]
-	features = movie_features[test_ratings[:,1] - 1]
-	features[:,1:len(features[0])] = (features[:,1:len(features[0])] - means)/stds
-	c = np.zeros((30002, 20))
-	c[:,1:20] = features[:,0:19]
+	#s = f.compute_pca(features)
+	
+	#s[:,1:16] = (s[:,1:16] - means)/stds
+	#b[:,1:16] =s
+	c = np.ones((30002, 20))	
+	c[:,2:20] = (movie_features[test_ratings[:,1] - 1][:,1:19] - means)/stds 
 	c[:,0] = test_ratings[:,1]
+
+	#s = f.compute_pca(features)
+	#s[:,1:16] = (s[:,1:16] - means)/stds
+
 		
 	if(args.verbose == 1 or args.verbose == 3): 
 		K = [2, 3, 4, 5, 6, 7, 8]
@@ -194,7 +202,7 @@ if __name__ == "__main__":
 	f = file_reader("movie-data\\movie-features.csv", "movie-data\\ratings-train.csv", "movie-data\\ratings-test.csv")
 	best_state, pearsonCoefficients, movie_features = f.read_movie_features(args)
 	if(args.verbose != 0): 
-		regression_analysis(movie_features, f.read_train_data(), f.read_test_data(), args)
+		regression_analysis(f, f.read_train_data(), f.read_test_data(), args)
 		print("pearson coefficient between %s and %s is %f" % (best_state[0], best_state[1], best_state[2]))	
 		plt.plot(pearsonCoefficients, 'g*')
 		plt.xlabel('genre tuple')
