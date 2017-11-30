@@ -78,5 +78,5 @@ taking the value of beta equal to 0.9 is analagous to taking the mean over the l
 |  | Mean Test Bias | Mean Train Bias | Mean Test Variance | Mean Train Variance | time (s) |
 | :---: | :-: | :-: | :-:| :-: | :-: |
 | **Unregularized (Original Features)**  | 1.932715 | 0.564595 | 2.416220 | 0.130706  | 006.669397 |
-| **Regularized (Original Features)**    | 1.214865 | 0.821067 | 0.734531 | 0.188991  | 369.080499 |
+| **Regularized (Original Features)**    | 1.889901 | 0.572407 | 2.276397 | 0.129983  | 476.689539 |
 | **Regularized (Transformed Features)** | 1.300464 | 0.595549 | 0.770308 | 0.125738 | 0          |

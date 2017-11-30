@@ -57,6 +57,7 @@ def compute(weight, partitioned_test_ratings, partitioned_movie_features):
 
 
 def processInput(i, ratings, movie_features, algorithm, args):
+	print(i)
 	person = ratings[(ratings[:,0] - 1) == i]
 	movie_ratings = movie_features[np.where(ratings[:,0] - 1 == i)][:,1:]
 	featureDimension = len(movie_ratings[0])
@@ -118,15 +119,11 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 	b[:,0] = train_ratings[:,1]
 	#s = f.compute_pca(features)
 	
-	#s[:,1:16] = (s[:,1:16] - means)/stds
-	#b[:,1:16] =s
 	c = np.ones((30002, n_features))	
 	c[:,2:] = (movie_features[test_ratings[:,1] - 1][:,1:] - means)/(stds + 10**-8) 
 	c[:,0] = test_ratings[:,1]
 
-	#s = f.compute_pca(features)
-	#s[:,1:16] = (s[:,1:16] - means)/stds
-
+	
 		
 	if(args.verbose == 1 or args.verbose == 3): 
 		K = [2, 3, 4, 5, 6, 7, 8]
