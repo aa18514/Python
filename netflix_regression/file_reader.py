@@ -18,6 +18,7 @@ class file_reader:
 	def calculate_correlation_coeff(self, labels):
 		data = self.data['movies']
 		best_state = [] 
+		print(labels)
 		pearsonCoefficients = []
 		featureDimension = len(data[0])
 		minimum = -0.0001
@@ -44,13 +45,12 @@ class file_reader:
 		return features
 
 	def compute_pca(self, x):
-		#print(len(x))
-		result = np.array([[1.0] * 15] * len(x))
-		pca = PCA(n_components = 14)
+		result = np.array([[1.0] * 6] * len(x))
+		pca = PCA(n_components = 5)
 		pca.fit(x)
 		comp = pca.components_
 		#print(comp)
-		result[:,1:15] = np.dot(x, comp.T)
+		result[:,1:6] = np.dot(x, comp.T)
 		print(result)
 		return result 
 
@@ -83,9 +83,7 @@ class file_reader:
 			return best_state, pearsonCoefficients, self.data['movies']
 	
 	def read_train_data(self):
-		features = self.data['movies'][np.array(self.data['train'][:,1], dtype = np.int) - 1]
 		return self.data['train']
 
 	def read_test_data(self): 
-		self.data['movies'] = self.data['movies'][np.array(self.data['train'][:,1], dtype = np.int) - 1]
 		return self.data['test']

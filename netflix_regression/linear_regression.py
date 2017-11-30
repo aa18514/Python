@@ -98,7 +98,7 @@ def plot_data(title, xlabel, ylabel, x, y, *args, **kwargs):
 		plt.plot(x, y, args[0])
 	plt.show()
 
-def linear_regression_with_regularization(f, train_ratings, test_ratings, args):
+def linear_regression_with_regularization(movie_features, train_ratings, test_ratings, args):
 	"""a total of 671 users, 700003 movies.
 	the function handles linear_model			
 	regression for each user, 
@@ -106,7 +106,6 @@ def linear_regression_with_regularization(f, train_ratings, test_ratings, args):
 	and non -linear transformation """
 	means = []
 	std = []
-	_, _, movie_features = f.read_movie_features(args)
 	means = np.mean(movie_features[:,1:19], axis = 0)
 	stds = np.std(movie_features[:,1:19], axis = 0)
 	b = np.ones((70002,20))
@@ -202,7 +201,7 @@ if __name__ == "__main__":
 	f = file_reader("movie-data\\movie-features.csv", "movie-data\\ratings-train.csv", "movie-data\\ratings-test.csv")
 	best_state, pearsonCoefficients, movie_features = f.read_movie_features(args)
 	if(args.verbose != 0): 
-		regression_analysis(f, f.read_train_data(), f.read_test_data(), args)
+		regression_analysis(movie_features, f.read_train_data(), f.read_test_data(), args)
 		print("pearson coefficient between %s and %s is %f" % (best_state[0], best_state[1], best_state[2]))	
 		plt.plot(pearsonCoefficients, 'g*')
 		plt.xlabel('genre tuple')
