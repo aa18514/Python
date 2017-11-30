@@ -68,7 +68,7 @@ taking the value of beta equal to 0.9 is analagous to taking the mean over the l
 </p>
 <div>
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/test_train_error.png" width="400" height="400" />
-	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/regression_without_regularization.png" width="400" height = "400" /> 
+	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/test_train_regularized.png" width="400" height = "400" /> 
 </div>
 <br>
 <p align="center"> 
