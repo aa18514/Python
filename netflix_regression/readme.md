@@ -1,23 +1,35 @@
 # ridge regression - netflix dataset
+
 ## Running the application 
+
 use verbosity (-v/-vv/-vvv) to switch between naive linear regression, regression with L2 regularization and regression with transformed <br> 
 features with regularization <br> 
 ## Dataset 
+
 Dataset consits of 671 users and 9066 movies <br> 
 All the data exists in the subdirectory "\movie-data" <br>
+
 ## Input features
+
 The input features originally have a dimension of d + 1 where d = 18 and in this case x[0] = 1 <br> 
 x[0] is used for the constant offset term, the rest of the terms represent different movie genres <br> 
+
 ## Output 
+
 The predictor function, y_hat represents the expected rating <br>
 The target function, y represents the actual rating <br> 
+
 ## Stratagies
 
 ### Prepocessing the input features
-training data feature vector x[1:,] is normalized to zero mean and unit variance, the same parameters are used to normalize the test data set <br>
-In order to ensure numerical stability when the variance is equal to zero, a value of epsilon equal to 10**-8 has been added to the variance.
+
+All feature vectors are normalized to zero and unit variance, the same parameters are used to normalize the test data set. <br>
+The step is done before the data is partitioned according to different users, where for each user we derive an optimal weight vector <br>
+In the case of non-transformed features the size of the feature vector is 19, and in the case of transformed features the size of <br>
+the feature vector is 172 <br>
 
 ### Controlling Overfitting
+
 L2 regularization is used to reduce overfitting (https://en.wikipedia.org/wiki/Overfitting) and improve test accuracy <br> 
 We learn the regularized weights for each user seperately which leads to higher bias and lower bias as compared to taking a single <br> 
 regularized weight vector for all the users <br> 
@@ -65,6 +77,6 @@ taking the value of beta equal to 0.9 is analagous to taking the mean over the l
 
 |  | Mean Test Bias | Mean Train Bias | Mean Test Variance | Mean Train Variance |
 | :---: | :-: | :-: | :-:| :-: |
-| **Unregularized (Original Features)**  | 1.567320 | 0.561700 | 1.809461 | 0.131361 |
-| **Regularized (Original Features)**    | 1.518431 | 0.574006 | 1.365711 | 0.130602 |
-| **Regularized (Transformed Features)** | 1.617370 | 0.431161 | 1.343438 | 0.100816 | 
+| **Unregularized (Original Features)**  | 1.932715 | 0.564595 | 2.416220 | 0.130706 |
+| **Regularized (Original Features)**    | 1.889901 | 0.572407 | 2.276397 | 0.129983 |
+| **Regularized (Transformed Features)** | 1.300464 | 0.595549 | 0.770308 | 0.125738 | 

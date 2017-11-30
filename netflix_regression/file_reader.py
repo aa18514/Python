@@ -12,6 +12,8 @@ class file_reader:
 		self.data['test']   = np.genfromtxt(self.__testFile, delimiter = ',', dtype = int)[1:]
 		self.data['train']  = np.genfromtxt(self.__trainFile, delimiter = ',', dtype = int)[1:]
 		self.data['movies'][:,0] = 1 
+		self.means = []
+		self.std = []
 
 	def calculate_correlation_coeff(self, labels):
 		data = self.data['movies']
@@ -34,10 +36,11 @@ class file_reader:
 				pearsonCoefficients.append(pearsonCoefficient)
 		return best_state, pearsonCoefficients	
 
-	def scale_features(self, features):
-		mean = np.mean(features[:,1:len(features[0])], axis = 1, keepdims = True)
-		std = np.std(features[:,1:len(features[0])], axis = 1, keepdims = True) + 10**-8
-		features[:,1:len(features[0])] = (features[:,1:len(features[0])] - mean)/std
+	def scale_features(self, features, epsilon):
+		if(len(self.means) == 0):
+			self.means = np.mean(features[:,1:len(features[0])], axis = 0, keepdims = True)
+			self.std = np.std(features[:,1:len(features[0])], axis = 0, keepdims = True) + epsilon
+		features[:,1:len(features[0])] = (features[:,1:len(features[0])] - self.means)/self.std
 		return features
 
 	def compute_pca(self, x):
@@ -63,10 +66,7 @@ class file_reader:
 				y = self.data['movies'][:,j]
 				temp[:,curr] = x * y
 				curr = curr + 1 
-		temp = self.scale_features(temp)
-		pca_features = self.compute_pca(temp[:,1:172])
-		print(pca_features)
-		return pca_features
+		return temp
 
 	def read_movie_features(self, args): 
 		with open(self.__movieFeatures) as f: 
@@ -82,7 +82,9 @@ class file_reader:
 			return best_state, pearsonCoefficients, self.data['movies']
 	
 	def read_train_data(self):
+		features = self.data['movies'][np.array(self.data['train'][:,1], dtype = np.int) - 1]
 		return self.data['train']
 
 	def read_test_data(self): 
+		self.data['movies'] = self.data['movies'][np.array(self.data['train'][:,1], dtype = np.int) - 1]
 		return self.data['test']

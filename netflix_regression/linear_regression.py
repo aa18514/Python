@@ -6,11 +6,13 @@ import math
 import argparse
 import textwrap
 from itertools import chain
-from multiprocessing.dummy import Pool as ThreadPool
 import datetime 
 from sklearn.cross_validation import KFold
 from datetime import timedelta
 from file_reader import file_reader
+from joblib import Parallel, delayed
+import multiprocessing
+
 
 def quantize(expected_ratings): 
 	ratings = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.50]
@@ -43,7 +45,7 @@ def k_fold_algorithm(movie_ratings, featureDimension, res, values_of_lambda, K):
 	reg_constant = values_of_lambda[np.argmin(errors)]
 	return reg_constant, train_dataset(featureDimension, movie_ratings, res, reg_constant)
 
-def naive_linear_regression(movie_ratings, res): 
+def naive_linear_regression(movie_ratings, res): 	
 	return np.dot(np.linalg.pinv(movie_ratings), res.T)
 
 def compute(weight, partitioned_test_ratings, partitioned_movie_features):
@@ -53,26 +55,27 @@ def compute(weight, partitioned_test_ratings, partitioned_movie_features):
 			errors = np.append(errors, np.mean((e - partitioned_test_ratings[users])**2))
 	return errors
 
-def extract_person(ratings, algorithm, movie_features, *args, **kwargs):
-		featureDimension = len(movie_features[0]) 
-		partitioned_ratings = [] 
-		partitioned_movie_features = []
-		weight = []
-		regularized_constants = []
-		for i in range(0, 671):
-			person = ratings[ratings[:,0] == i + 1]
-			movie_ratings = movie_features[person[:,1] - 1]
-			partitioned_movie_features.append(movie_ratings)
-			partitioned_ratings.append(person[:,2])
-			if(algorithm == "k_fold"): 
-				rg_constant, w = k_fold_algorithm(movie_ratings, featureDimension, person[:,2], args[0], args[1])
-				weight.append(w)
-				regularized_constants.append(rg_constant)
-			elif(algorithm == "lin_reg"): 
-				w = naive_linear_regression(movie_ratings, person[:,2])
-				weight.append([[w] for i in range(len(movie_ratings))])
-		return regularized_constants, np.array(partitioned_ratings), np.array(partitioned_movie_features), weight
 
+def processInput(i, ratings, movie_features, algorithm, args):
+	person = ratings[(ratings[:,0] - 1) == i]
+	movie_ratings = movie_features[np.where(ratings[:,0] - 1 == i)][:,1:20]
+	featureDimension = len(movie_ratings[0])
+	w = None
+	rg_constant = None
+	if(algorithm == "lin_reg"):
+		w = naive_linear_regression(movie_ratings, person[:,2])
+	elif(algorithm == "k_fold"):
+		rg_constant, w = k_fold_algorithm(movie_ratings, featureDimension, person[:,2], args[0], args[1])
+	return [rg_constant], movie_ratings, person[:,2], w, [i]
+
+def extract_person(ratings, algorithm, movie_features, *args, **kwargs): 
+		j = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(delayed(processInput)(i, ratings, movie_features, algorithm, args) for i in range(671)))
+		regularized_constants = np.array([x for _,x in sorted(zip(j[:,4], j[:,0]))])
+		weight = np.array([x for _,x in sorted(zip(j[:,4],j[:,3]))])
+		partitioned_ratings = np.array([x for _,x in sorted(zip(j[:,4], j[:,2]))])	
+		partitioned_movie_features = np.array([x for _,x in sorted(zip(j[:,4], j[:,1]))])
+		return regularized_constants, partitioned_ratings, partitioned_movie_features, weight
+		
 def compute_test_error(weight, test_ratings, movie_features):
 	_, partitioned_test_ratings, partitioned_movie_features, _ = extract_person(test_ratings, "None", movie_features)
 	return compute(weight, partitioned_test_ratings, partitioned_movie_features)
@@ -81,9 +84,7 @@ def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwarg
 	regularized_constants, partitioned_train_ratings, partitioned_movie_features, weight = extract_person(train_ratings, algorithm, movie_features, args[0], args[1])
 	return regularized_constants, weight, compute(weight, partitioned_train_ratings, partitioned_movie_features)
 
-def func(k): 
-	f = file_reader("movie-data\\movie-features.csv", "movie-data\\ratings-train.csv", "movie-data\\ratings-test.csv")
-	_, _, movie_features = f.read_movie_features(args)
+def func(k, movie_features, train_data): 
 	regularized_constants, weight, train_error = compute_train_error(f.read_train_data(), movie_features, "k_fold", np.logspace(-4, 0, 50), k)
 	return regularized_constants, train_error, weight
 
@@ -103,13 +104,32 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 	regression for each user, 
 	linear regression with regularization, 
 	and non -linear transformation """
+	features = movie_features[train_ratings[:,1] - 1]
+	means = np.mean(features[:,1:len(features[0])], axis = 0, keepdims = True)
+	stds = np.std(features[:,1:len(features[0])], axis = 0, keepdims = True) + 10**-8
+	features[:,1:len(features[0])] = (features[:,1:len(features[0])] - means)/stds
+	b = np.zeros((70002,20))
+	b[:,1:20] = features[:,0:19]
+	b[:,0] = train_ratings[:,1]
+	features = movie_features[test_ratings[:,1] - 1]
+	features[:,1:len(features[0])] = (features[:,1:len(features[0])] - means)/stds
+	c = np.zeros((30002, 20))
+	c[:,1:20] = features[:,0:19]
+	c[:,0] = test_ratings[:,1]
+		
 	if(args.verbose == 1 or args.verbose == 3): 
 		K = [2, 3, 4, 5, 6, 7, 8]
-		results = ThreadPool(5).map(func, K)
-		parsed_results = list(list(zip(*results)))
-		regularized_constants = parsed_results[0]
-		train_errors  = parsed_results[1]
-		final_weights = parsed_results[2]
+		regularized_constants = []
+		train_errors = []
+		final_weights = []
+		for i in K: 
+			rg, train_error, weight = func(i, b, train_ratings)
+			regularized_constants.append(rg)
+			train_errors.append(train_error)
+			final_weights.append(weight)
+		regularized_constants = np.array(regularized_constants)
+		train_errors  = np.array(train_errors)
+		final_weights = np.array(final_weights)
 		bias = np.array([])
 		variance = np.array([])
 		error = np.array([])
@@ -125,10 +145,10 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 		plot_data('total error against K', 'K', 'error train data', K, error)
 		print(error)
 		minimum = np.argmin(error)
-		return train_errors[minimum], compute_test_error(final_weights[minimum], test_ratings, movie_features)
+		return train_errors[minimum], compute_test_error(final_weights[minimum], test_ratings, c)
 	else: 
-		_, weight, train_error = compute_train_error(train_ratings, movie_features, "lin_reg", None, None)
-		return train_error, compute_test_error(weight, test_ratings, movie_features)
+		_, weight, train_error = compute_train_error(train_ratings, b, "lin_reg", None, None)
+		return train_error, compute_test_error(weight, test_ratings, c)
 
 def exponential_weightings(error, beta): 
 	vo = 0.0
