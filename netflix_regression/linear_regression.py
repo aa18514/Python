@@ -88,7 +88,7 @@ def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwarg
 	return regularized_constants, weight, compute(weight, partitioned_train_ratings, partitioned_movie_features)
 
 def func(k, movie_features, train_data): 
-	regularized_constants, weight, train_error = compute_train_error(f.read_train_data(), movie_features, "k_fold", np.logspace(-4, 0, 50), k)
+	regularized_constants, weight, train_error = compute_train_error(f.read_train_data(), movie_features, "k_fold", np.logspace(-5, 0, 100), k)
 	return regularized_constants, train_error, weight
 
 def plot_data(title, xlabel, ylabel, x, y, *args, **kwargs): 
