@@ -58,7 +58,7 @@ def compute(weight, partitioned_test_ratings, partitioned_movie_features):
 
 def processInput(i, ratings, movie_features, algorithm, args):
 	person = ratings[(ratings[:,0] - 1) == i]
-	movie_ratings = movie_features[np.where(ratings[:,0] - 1 == i)][:,1:7]
+	movie_ratings = movie_features[np.where(ratings[:,0] - 1 == i)][:,1:]
 	featureDimension = len(movie_ratings[0])
 	w = None
 	rg_constant = None
@@ -106,18 +106,22 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 	and non -linear transformation """
 	means = []
 	std = []
-	means = np.mean(movie_features[:,1:19], axis = 0)
-	stds = np.std(movie_features[:,1:19], axis = 0)
-	b = np.ones((70002,20))
-	b[:,2:20] = (movie_features[train_ratings[:,1] - 1][:,1:19] - means)/stds 
-	print(b[:,1:20])
+	means = np.mean(movie_features[train_ratings[:,1] - 1][:,1:], axis = 0)
+	stds = np.std(movie_features[train_ratings[:,1] - 1][:,1:], axis = 0)
+	if(args.verbose == 3):
+		n_features = 172
+	else:
+		n_features = 19
+	n_features += 1 
+	b = np.ones((70002,n_features))
+	b[:,2:] = (movie_features[train_ratings[:,1] - 1][:,1:] - means)/(stds + 10**-8) 
 	b[:,0] = train_ratings[:,1]
 	#s = f.compute_pca(features)
 	
 	#s[:,1:16] = (s[:,1:16] - means)/stds
 	#b[:,1:16] =s
-	c = np.ones((30002, 20))	
-	c[:,2:20] = (movie_features[test_ratings[:,1] - 1][:,1:19] - means)/stds 
+	c = np.ones((30002, n_features))	
+	c[:,2:] = (movie_features[test_ratings[:,1] - 1][:,1:] - means)/(stds + 10**-8) 
 	c[:,0] = test_ratings[:,1]
 
 	#s = f.compute_pca(features)
