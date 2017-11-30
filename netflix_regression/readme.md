@@ -39,8 +39,10 @@ The following graph shows the lambda values for all 671 users:
 </p> 
 the loss function in this case is taken to be L2 norm (Euclidean length between the predictor and the target) <br> 
 Added support for the multi-processing module to parallelize against different values of K respectively <br> 
+
 ### Applying non-linear transformation
-the non-linear transformation is taken to be each genre multiplied with the rest of the genres in the dataset. <br>
+
+The non-linear transformation is taken to be each genre multiplied with the rest of the genres in the dataset. <br>
 <p align="center"> 
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/correlation_coefficients.png" />
 </p>
