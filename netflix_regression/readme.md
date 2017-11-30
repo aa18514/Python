@@ -75,8 +75,8 @@ taking the value of beta equal to 0.9 is analagous to taking the mean over the l
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/non-linear-features.png" width="400" height="400" /> 
 </p>
 
-|  | Mean Test Bias | Mean Train Bias | Mean Test Variance | Mean Train Variance |
+|  | Mean Test Bias | Mean Train Bias | Mean Test Variance | Mean Train Variance | time (s)
 | :---: | :-: | :-: | :-:| :-: |
-| **Unregularized (Original Features)**  | 1.932715 | 0.564595 | 2.416220 | 0.130706 |
-| **Regularized (Original Features)**    | 1.889901 | 0.572407 | 2.276397 | 0.129983 |
+| **Unregularized (Original Features)**  | 1.293014 | 0.874316 | 0.882439 | 0.223620 | 005.838799
+| **Regularized (Original Features)**    | 1.287969 | 0.877782 | 0.859080 | 0.222558 | 352.654688
 | **Regularized (Transformed Features)** | 1.300464 | 0.595549 | 0.770308 | 0.125738 | 
