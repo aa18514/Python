@@ -74,8 +74,8 @@ The exponentially weighted average is calculated as follows:
 <img src="http://www.sciweavers.org/tex2img.php?eq=%20%5Cbeta%20&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt=" \beta " width="17" height="19" />) * current_error </p> 
 where meanPrev is initialized to zero <br> 
 after each iteration the value if meanPrev is updated to the value of meanNext respectively <br>
-the value of <img src="http://www.sciweavers.org/tex2img.php?eq=%20%5Cbeta%20&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" alt="\beta " width="17" height="19"> chosen for the analysis is 0.9, although in the future this can be experimented choosing an appropiate value of beta can be experimented with in the future <br>
-taking the value of beta equal to 0.9 is analagous to taking the mean over the last 10 iterations <br>
+the value of beta chosen for the analysis is 0.9, although in the future this can be experimented choosing an appropiate value of beta can be experimented with in the future. <br>
+Taking the value of beta equal to 0.9 is analagous to taking the mean over the last 10 iterations <br>
 <br>
 <div>
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/bias_against_K.png" width="400" height="400" />
