@@ -69,7 +69,7 @@ This yields a new dimension vector with a dimension of 172 <br>
 
 The following figures show the exponentially weighted training and test errors for 671 netflix users, which makes it more conveniant for us to capture the trends in the training and test bias. 
 The exponentially weighted average is calculated as follows: <br>
-<"https://github.com/aa18514/Python/blob/master/netflix_regression/images/for.gif" width="242" height="19" /> <br>
+<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/for.gif" width="242" height="19" /> <br>
 <p align="center"> 
 <img src="http://www.sciweavers.org/tex2img.php?eq=%20%20v_%7Bt%7D%20&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt="  v_{t} " width="21" height="15" /> 
 = 
