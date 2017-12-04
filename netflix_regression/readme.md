@@ -72,12 +72,12 @@ The exponentially weighted average is calculated as follows:
 <p align="center"> 
 <img src="http://www.sciweavers.org/tex2img.php?eq=%20%20v_%7Bt%7D%20&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt="  v_{t} " width="21" height="15" /> 
 = 
-<img src="http://www.sciweavers.org/tex2img.php?eq=%20%5Cbeta%20&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt=" \beta " width="17" height="19" />
+<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/CodeCogsEqn.gif" align="center" border="0" alt=" \beta " width="17" height="19" />
 * 
 <img src="http://www.sciweavers.org/tex2img.php?eq=%20%20v_%7Bt%20-%201%7D%20&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt="  v_{t - 1} " width="39" height="15" /> 
 + (1
 - 
-<img src="http://www.sciweavers.org/tex2img.php?eq=%20%5Cbeta%20&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt=" \beta " width="17" height="19" />)
+<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/CodeCogsEqn.gif" align="center" border="0" alt=" \beta " width="17" height="19" />)
 * 
 current_error </p> 
 where meanPrev is initialized to zero <br> 
