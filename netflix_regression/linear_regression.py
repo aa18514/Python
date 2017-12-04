@@ -128,30 +128,42 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 	regression for each user, 
 	linear regression with regularization, 
 	and non -linear transformation """
-	train = []
-	test = []
-	for i in range(1, 672): 
-		l, a, b = compute_multiple_pca(i, train_ratings, test_ratings, movie_features, movie_features, n_features)
-		train.append(a)
-		test.append(b)
+	tr = movie_features[train_ratings[:,1] - 1]
+	ts = movie_features[test_ratings[:,1] - 1]
+	mean = np.mean(tr[:,1:], axis = 0)
+	std = np.std(tr[:,1:], axis = 0)
+	tr[:,1:] = (tr[:,1:] - mean)/(std + 10**-8)
+	ts[:,1:] = (ts[:,1:] - mean)/(std + 10**-8) 
+	pca = PCA(n_components = n_features)
+	pca.fit(tr)
+	#pca.fit(movie_features[test_ratings[:,1] - 1])
+	ra = pca.transform(tr)
+	rc = pca.transform(movie_features[test_ratings[:,1] - 1])
+	#train = []
+	#test = []
+	#for i in range(1, 672): 
+	#	l, a, b = compute_multiple_pca(i, train_ratings, test_ratings, movie_features, movie_features, n_features)
+	#	train.append(a)
+	#	test.append(b)
 
 	#j = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(delayed(compute_multiple_pca)(i, train_ratings, test_ratings, movie_features, movie_features, n_features) for i in range(671)))	
 	#print(np.squeeze(np.array(j[:,1][:,0])))
-	print(n_features)
-	people = [] 
-	for i in range(671): 
-		length = len(train[i])
-		a = n_features
-		io = np.zeros((train[i].shape[0], n_features - len(train[i][0])), dtype = train[i].dtype)
-		train[i] = np.concatenate([train[i], io], axis = 1)
-		print(len(train[i]))
-		s = train[i].reshape(int(length), int(a))
-		people.append(s)
-	people = list(itertools.chain.from_iterable(people))
-	ra = np.array(people).reshape(70002, n_features)
+	#print(n_features)
+	#people = [] 
+	#for i in range(671): 
+#		length = len(train[i])
+#		a = n_features
+#		io = np.zeros((train[i].shape[0], n_features - len(train[i][0])), dtype = train[i].dtype)
+#		train[i] = np.concatenate([train[i], io], axis = 1)
+#		print(len(train[i]))
+#		s = train[i].reshape(int(length), int(a))
+#		people.append(s)
+#	people = list(itertools.chain.from_iterable(people))
+	#ra = np.array(people).reshape(70002, n_features)
 	b = np.ones((70002, n_features + 1))
 	c = np.ones((30002, n_features + 1))
 	b[:,1:] = ra
+	c[:,1:] = rc
 	b[:,0] = train_ratings[:,1]
 	c[:,0] = test_ratings[:,1]
 	
@@ -206,7 +218,7 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	train_errors = []
 	train_variance = []
 	test_variance = []
-	for i in range(1, 100):
+	for i in range(1, 30):
 			a = datetime.datetime.now()
 			error_train, error_test = linear_regression_with_regularization(movie_features, train_ratings, test_ratings, i, args)
 			b = datetime.datetime.now()
@@ -215,8 +227,8 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 			train_errors.append(np.mean(error_train))
 			test_variance.append(np.var(error_test))
 			train_variance.append(np.var(error_train))
-	p = np.poly1d(np.polyfit(np.arange(1, 100, 1), times, 3))
-	x = np.arange(1, 100, 1)
+	p = np.poly1d(np.polyfit(np.arange(1, 30, 1), times, 3))
+	x = np.arange(1, 30, 1)
 	plt.plot(x, p(x))
 	plt.plot(x, times, 'r+')
 	plt.title('PCA analysis')
@@ -227,8 +239,8 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	fig = plt.figure()
 	plt.title('PCA analysis')
 	ax = plt.subplot(111)
-	ax.plot(np.arange(1, 100, 1), errors, label = 'test bias')
-	ax.plot(np.arange(1, 100, 1), train_errors, label = 'train error')
+	ax.plot(np.arange(1, 30, 1), errors, label = 'test bias')
+	ax.plot(np.arange(1, 30, 1), train_errors, label = 'train error')
 	ax.legend()
 	#plt.legend((ax_train, ax_test), ('train bias', 'test bias'))
 	plt.xlabel('n_components')
@@ -236,8 +248,8 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	plt.show()
 	plt.title('variance')
 	ax = plt.subplot(111)
-	ax.plot(np.arange(1, 100, 1), train_variance, label = 'test variance')
-	ax.plot(np.arange(1, 100, 1), test_variance, label = 'train variance')
+	ax.plot(np.arange(1, 30, 1), train_variance, label = 'test variance')
+	ax.plot(np.arange(1, 30, 1), test_variance, label = 'train variance')
 	#plt.legend((ax_train, ax_test), ('train bias', 'test bias'))
 	plt.xlabel('n_components')
 	plt.ylabel('variance')

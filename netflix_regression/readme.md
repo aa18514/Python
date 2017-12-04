@@ -99,18 +99,17 @@ taking the value of beta equal to 0.9 is analagous to taking the mean over the l
 | **Regularized (Transformed Features)** | 3.869358 | 0.297641 | 5.153465 | 0.068069  | 2100.70408 |
 
 While for the original features, we see that moving from unregluarized version to L2 - regularization has resulted in a decline in the test bias, for the transformed features, the test bias nearly doubles <br> 
-This suggests that we have too many features, and limited dataset. 
-
-For example when the pca was run on the transformed features, and the test and train bias were plotted against n_components, the following diagram was obtained: 
-
+This suggests that we have too many features, and limited dataset. This emphasizes the need for feature reduction techniques such as principal components. <br> 
+After the training and test data was using non - linear transformation and standardized, PCA was used to project the features into a new dimension space. The test and train bias were recorded with respect to <br> 
+the number of principal components: <br> 
 <p align="center"> 
 	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/error.png" width="400" height="400" /> 
 </p>
-
-As expected we can see that increasing the number of components reduces the test bias. However, data was partitioned according to indiviual users, and for many users the number of samples were less than the number of components <br> 
-due to which the number of features for the transformed vector was clamped to the number of samples for that indiviual. <br>
-
-
-
-
-         
+The following diagram shows the train and the test variances with respect to the number of principal components: <br> 
+<p align="center"> 
+	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/variance.png" width="400" height="400" />
+</p> 
+Similarly, I tried to capture the computational complexity of principal component analysis with respect to the number of features: <br> 
+<p align = "center"> 
+	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/times.png" width="400" height="400" /> 
+</p>          
