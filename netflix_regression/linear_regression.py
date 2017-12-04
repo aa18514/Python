@@ -218,7 +218,7 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	train_errors = []
 	train_variance = []
 	test_variance = []
-	for i in range(1, 30):
+	for i in range(1, 50):
 			a = datetime.datetime.now()
 			error_train, error_test = linear_regression_with_regularization(movie_features, train_ratings, test_ratings, i, args)
 			b = datetime.datetime.now()
@@ -227,8 +227,8 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 			train_errors.append(np.mean(error_train))
 			test_variance.append(np.var(error_test))
 			train_variance.append(np.var(error_train))
-	p = np.poly1d(np.polyfit(np.arange(1, 30, 1), times, 3))
-	x = np.arange(1, 30, 1)
+	p = np.poly1d(np.polyfit(np.arange(1, 50, 1), times, 3))
+	x = np.arange(1, 50, 1)
 	plt.plot(x, p(x))
 	plt.plot(x, times, 'r+')
 	plt.title('PCA analysis')
@@ -239,8 +239,8 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	fig = plt.figure()
 	plt.title('PCA analysis')
 	ax = plt.subplot(111)
-	ax.plot(np.arange(1, 30, 1), errors, label = 'test bias')
-	ax.plot(np.arange(1, 30, 1), train_errors, label = 'train error')
+	ax.plot(np.arange(1, 50, 1), errors, label = 'test bias')
+	ax.plot(np.arange(1, 50, 1), train_errors, label = 'train error')
 	ax.legend()
 	#plt.legend((ax_train, ax_test), ('train bias', 'test bias'))
 	plt.xlabel('n_components')
@@ -250,6 +250,7 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	ax = plt.subplot(111)
 	ax.plot(np.arange(1, 30, 1), train_variance, label = 'test variance')
 	ax.plot(np.arange(1, 30, 1), test_variance, label = 'train variance')
+	ax.legent()
 	#plt.legend((ax_train, ax_test), ('train bias', 'test bias'))
 	plt.xlabel('n_components')
 	plt.ylabel('variance')
