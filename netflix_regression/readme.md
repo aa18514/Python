@@ -69,7 +69,7 @@ This yields a new dimension vector with a dimension of 172 <br>
 
 The following figures show the exponentially weighted training and test errors for 671 netflix users, which makes it more conveniant for us to capture the trends in the training and test bias. 
 The exponentially weighted average is calculated as follows: 
-<p align="center"> meanNext = 
+<p align="center"> <img src="http://www.sciweavers.org/tex2img.php?eq=%20%20v_%7Bt%7D%20&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt="  v_{t} " width="21" height="15" /> = 
 <img src="http://www.sciweavers.org/tex2img.php?eq=%20%5Cbeta%20&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt=" \beta " width="17" height="19" /> * meanPrev + (1 - 
 <img src="http://www.sciweavers.org/tex2img.php?eq=%20%5Cbeta%20&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt=" \beta " width="17" height="19" />) * current_error </p> 
 where meanPrev is initialized to zero <br> 
