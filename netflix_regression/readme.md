@@ -2,8 +2,8 @@
 
 ## Running the application 
 
-use verbosity (-v/-vv/-vvv) to switch between naive linear regression, regression with L2 regularization and regression with transformed <br> 
-features with regularization <br> 
+use verbosity (-v/-vv/-vvv) to switch between naive linear regression, regression with L2 regularization and regression with transformed features with regularization <br> 
+
 ## Dataset 
 
 Dataset consits of 671 users and 9066 movies <br> 

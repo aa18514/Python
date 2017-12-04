@@ -217,7 +217,7 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	train_errors = []
 	train_variance = []
 	test_variance = []
-	NumberOfFeatures = 10
+	NumberOfFeatures = 50
 	for i in range(1, NumberOfFeatures):
 			a = datetime.datetime.now()
 			error_train, error_test = linear_regression_with_regularization(movie_features, train_ratings, test_ratings, i, args)
