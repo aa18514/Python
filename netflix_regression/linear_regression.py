@@ -250,7 +250,7 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	ax = plt.subplot(111)
 	ax.plot(np.arange(1, 50, 1), train_variance, label = 'test variance')
 	ax.plot(np.arange(1, 50, 1), test_variance, label = 'train variance')
-	ax.legent()
+	ax.legend()
 	#plt.legend((ax_train, ax_test), ('train bias', 'test bias'))
 	plt.xlabel('n_components')
 	plt.ylabel('variance')
