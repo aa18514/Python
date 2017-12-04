@@ -103,7 +103,7 @@ This suggests that we have too many features, and limited dataset. This emphasiz
 After the training and test data was using non - linear transformation and standardized, PCA was used to project the features into a new dimension space. The test and train bias were recorded with respect to <br> 
 the number of principal components: <br> 
 <p align="center"> 
-	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/error.png" width="400" height="400" /> 
+	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/error1.png" width="400" height="400" /> 
 </p>
 The following diagram shows the train and the test variances with respect to the number of principal components: <br> 
 <p align="center"> 
