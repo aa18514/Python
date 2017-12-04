@@ -2,6 +2,8 @@ import math
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 from tensorflow.python.framework import ops
 from tf_utils import load_dataset, random_mini_batches, convert_to_one_hot, predict
@@ -224,7 +226,8 @@ def forward_propagation(X, parameters):
     drop_out = tf.nn.dropout(A1, keep_prob)                              
     Z2 = tf.matmul(W2, drop_out) + b2                         
     A2 = tf.nn.relu(Z2) 
-    Z3 = tf.matmul(W3, A2) + b3
+    drop_out = tf.nn.dropout(A2, 0.90)
+    Z3 = tf.matmul(W3, drop_out) + b3
     return Z3
 
 
@@ -278,13 +281,9 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.00001,
     Z3 = forward_propagation(X, parameters)
     cost = compute_cost(Z3, Y)
     global_step = tf.Variable(0, trainable=False)
-    starter_learning_rate = 0.0001
-    learning_rate = tf.train.exponential_decay(starter_learning_rate, global_step,
-                                           10000, 0.96, staircase=True)
-    optimizer = (
-        tf.train.AdamOptimizer(learning_rate)
-        .minimize(cost, global_step=global_step)
-    )
+    #learning_rate = tf.train.exponential_decay(starter_learning_rate, global_step,
+    #                                      10000, 0.96, staircase=True)
+    optimizer = tf.train.AdamOptimizer(learning_rate = learning_rate).minimize(cost)
     init = tf.global_variables_initializer()
     with tf.Session() as sess:
         sess.run(init)

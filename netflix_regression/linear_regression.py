@@ -1,5 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA 
 import scipy 
 from sklearn import linear_model
 import math
@@ -7,7 +8,9 @@ import argparse
 import textwrap
 from itertools import chain
 import datetime 
+import itertools
 from sklearn.cross_validation import KFold
+from file_reader import compute_pca
 from datetime import timedelta
 from file_reader import file_reader
 from joblib import Parallel, delayed
@@ -57,7 +60,6 @@ def compute(weight, partitioned_test_ratings, partitioned_movie_features):
 
 
 def processInput(i, ratings, movie_features, algorithm, args):
-	print(i)
 	person = ratings[(ratings[:,0] - 1) == i]
 	movie_ratings = movie_features[np.where(ratings[:,0] - 1 == i)][:,1:]
 	featureDimension = len(movie_ratings[0])
@@ -70,8 +72,6 @@ def processInput(i, ratings, movie_features, algorithm, args):
 	return [rg_constant], movie_ratings, person[:,2], w, [i]
 
 def extract_person(ratings, algorithm, movie_features, *args, **kwargs):
-		print("extract person")
-		print(algorithm) 
 		j = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(delayed(processInput)(i, ratings, movie_features, algorithm, args) for i in range(671)))
 		regularized_constants = np.array([x for _,x in sorted(zip(j[:,4], j[:,0]))])
 		weight = np.array([x for _,x in sorted(zip(j[:,4],j[:,3]))])
@@ -88,7 +88,7 @@ def compute_train_error(train_ratings, movie_features, algorithm, *args, **kwarg
 	return regularized_constants, weight, compute(weight, partitioned_train_ratings, partitioned_movie_features)
 
 def func(k, movie_features, train_data): 
-	regularized_constants, weight, train_error = compute_train_error(f.read_train_data(), movie_features, "k_fold", np.logspace(-5, 0, 100), k)
+	regularized_constants, weight, train_error = compute_train_error(f.read_train_data(), movie_features, "k_fold", np.logspace(-4, 0, 50), k)
 	return regularized_constants, train_error, weight
 
 def plot_data(title, xlabel, ylabel, x, y, *args, **kwargs): 
@@ -101,34 +101,63 @@ def plot_data(title, xlabel, ylabel, x, y, *args, **kwargs):
 		plt.plot(x, y, args[0])
 	plt.show()
 
-def linear_regression_with_regularization(movie_features, train_ratings, test_ratings, args):
+
+def compute_multiple_pca(i, TrainRatings, TestRatings, TrainMovieFeatures, TestMovieFeatures, n_features):
+	person_train = TrainRatings[(TrainRatings[:,0]) == (i)] 
+	person_test = TestRatings[(TestRatings[:,0]) == (i)]
+	#train_movie_ratings = np.ones((len(TrainMovieFeatures[person_train[:,1] - 1]), n_features))
+	#test_movie_ratings = np.ones((len(TestMovieFeatures[person_test[:,1] - 1]), n_features))
+	#print(train_movie_ratings.shape)
+	train_movie_ratings = TrainMovieFeatures[person_train[:,1] - 1]
+	test_movie_ratings = TestMovieFeatures[person_test[:,1] - 1]
+	#test_movie_ratings = TestMovieFeatures[person_test[:,1] - 1]
+
+	mean = np.mean(train_movie_ratings[:,1:], axis = 0)
+	std = np.std(train_movie_ratings[:,1:], axis = 0)
+	
+	train_movie_ratings[:,1:] = (train_movie_ratings[:,1:] - mean)/(std + 10**-8)
+	test_movie_ratings[:,1:] = (test_movie_ratings[:,1:] - mean)/(std + 10**-8) 
+	pca = PCA(n_components = n_features)
+	pca.fit(train_movie_ratings)
+	a = pca.transform(train_movie_ratings)
+	return [1], a, pca.transform(test_movie_ratings)
+
+def linear_regression_with_regularization(movie_features, train_ratings, test_ratings, n_features, args):
 	"""a total of 671 users, 700003 movies.
 	the function handles linear_model			
 	regression for each user, 
 	linear regression with regularization, 
 	and non -linear transformation """
-	means = []
-	std = []
-	if(args.verbose == 3):
-		n_features = 172
-	else:
-		n_features = 19
-	n_features += 1 
-	b = np.ones((70002,n_features))
-	means = np.mean(movie_features[train_ratings[:,1] - 1][:,1:], axis = 0)
-	stds = np.std(movie_features[train_ratings[:,1] - 1][:,1:], axis = 0)
-	b[:,2:] = (movie_features[train_ratings[:,1] - 1][:,1:] - means)/(stds + 10**-8) 
-	b[:,0] = train_ratings[:,1]
-	#s = f.compute_pca(features)
-	
-	c = np.ones((30002, n_features))	
-	c[:,2:] = (movie_features[test_ratings[:,1] - 1][:,1:] - means)/(stds + 10**-8) 
-	c[:,0] = test_ratings[:,1]
+	train = []
+	test = []
+	for i in range(1, 672): 
+		l, a, b = compute_multiple_pca(i, train_ratings, test_ratings, movie_features, movie_features, n_features)
+		train.append(a)
+		test.append(b)
 
+	#j = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(delayed(compute_multiple_pca)(i, train_ratings, test_ratings, movie_features, movie_features, n_features) for i in range(671)))	
+	#print(np.squeeze(np.array(j[:,1][:,0])))
+	print(n_features)
+	people = [] 
+	for i in range(671): 
+		length = len(train[i])
+		a = n_features
+		io = np.zeros((train[i].shape[0], n_features - len(train[i][0])), dtype = train[i].dtype)
+		train[i] = np.concatenate([train[i], io], axis = 1)
+		print(len(train[i]))
+		s = train[i].reshape(int(length), int(a))
+		people.append(s)
+	people = list(itertools.chain.from_iterable(people))
+	ra = np.array(people).reshape(70002, n_features)
+	b = np.ones((70002, n_features + 1))
+	c = np.ones((30002, n_features + 1))
+	b[:,1:] = ra
+	b[:,0] = train_ratings[:,1]
+	c[:,0] = test_ratings[:,1]
 	
 		
 	if(args.verbose == 1 or args.verbose == 3): 
-		K = [2, 3, 4, 5, 6, 7, 8]
+		K = [3, 4, 5, 6, 7, 8]
 		regularized_constants = []
 		train_errors = []
 		final_weights = []
@@ -140,20 +169,20 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 		regularized_constants = np.array(regularized_constants)
 		train_errors  = np.array(train_errors)
 		final_weights = np.array(final_weights)
-		bias = np.array([])
-		variance = np.array([])
-		error = np.array([])
-		users = np.arange(0, 671, 1)
-		for i in range(len(K)):
-			title = (' lambda vs users at K %f' % K[i])
-			plot_data(title, 'users', 'values of lambda', users, regularized_constants[i], 'g*')
-			bias = np.append(bias, np.mean(train_errors[i]))
-			variance = np.append(variance, np.var(train_errors[i]))
-		error = bias + variance
-		plot_data('bias against K', 'K', 'bias train data', K, bias)
-		plot_data('variance against K', 'K', 'variance train data', K, variance)
-		plot_data('total error against K', 'K', 'error train data', K, error)
-		print(error)
+		#bias = np.array([])
+		#variance = np.array([])
+		#error = np.array([])
+		#users = np.arange(0, 671, 1)
+		error = np.mean(train_errors, axis = 1) + np.var(train_errors, axis = 1)
+		#for i in range(len(K)):
+			#title = (' lambda vs users at K %f' % K[i])
+			#plot_data(title, 'users', 'values of lambda', users, regularized_constants[i], 'g*')
+			#bias = np.append(bias, np.mean(train_errors[i]))
+			#variance = np.append(variance, np.var(train_errors[i]))
+		#error = bias + variance
+		#plot_data('bias against K', 'K', 'bias train data', K, bias)
+		#plot_data('variance against K', 'K', 'variance train data', K, variance)
+		#plot_data('total error against K', 'K', 'error train data', K, error)
 		minimum = np.argmin(error)
 		return train_errors[minimum], compute_test_error(final_weights[minimum], test_ratings, c)
 	else: 
@@ -171,19 +200,53 @@ def exponential_weightings(error, beta):
 
 def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	beta = 0.9
-	a = datetime.datetime.now()
-	error_train, error_test = linear_regression_with_regularization(movie_features, train_ratings, test_ratings, args)
-	b = datetime.datetime.now()
-	plt.xlabel("users")
-	plt.ylabel("exponentially weighted squared error")
-	plt.plot(np.arange(0., len(error_test), 1), exponential_weightings(error_test, beta))
-	plt.plot(np.arange(0., len(error_train), 1), exponential_weightings(error_train, beta))
+	times = []
+	test_bias = []
+	errors = []
+	train_errors = []
+	train_variance = []
+	test_variance = []
+	for i in range(1, 100):
+			a = datetime.datetime.now()
+			error_train, error_test = linear_regression_with_regularization(movie_features, train_ratings, test_ratings, i, args)
+			b = datetime.datetime.now()
+			times.append((b - a).total_seconds())
+			errors.append(np.mean(error_test))
+			train_errors.append(np.mean(error_train))
+			test_variance.append(np.var(error_test))
+			train_variance.append(np.var(error_train))
+	p = np.poly1d(np.polyfit(np.arange(1, 100, 1), times, 3))
+	x = np.arange(1, 100, 1)
+	plt.plot(x, p(x))
+	plt.plot(x, times, 'r+')
+	plt.title('PCA analysis')
+	#plt.plot(np.arange(1, 20, 1), times)
+	plt.xlabel('n_components')
+	plt.ylabel('time/s')
 	plt.show()
-	print("program took: %f s" % ((b-a).total_seconds()))
-	print("train bias: %f"  % (np.mean(error_train)))
-	print("train var:  %f"  % (np.var(error_train)))
-	print("test bias:  %f"  % (np.mean(error_test)))
-	print("test var:   %f"  % (np.var(error_test)))
+	fig = plt.figure()
+	plt.title('PCA analysis')
+	ax = plt.subplot(111)
+	ax.plot(np.arange(1, 100, 1), errors, label = 'test bias')
+	ax.plot(np.arange(1, 100, 1), train_errors, label = 'train error')
+	ax.legend()
+	#plt.legend((ax_train, ax_test), ('train bias', 'test bias'))
+	plt.xlabel('n_components')
+	plt.ylabel('bias')
+	plt.show()
+	plt.title('variance')
+	ax = plt.subplot(111)
+	ax.plot(np.arange(1, 100, 1), train_variance, label = 'test variance')
+	ax.plot(np.arange(1, 100, 1), test_variance, label = 'train variance')
+	#plt.legend((ax_train, ax_test), ('train bias', 'test bias'))
+	plt.xlabel('n_components')
+	plt.ylabel('variance')
+	plt.show()
+	#print("program took: %f s" % ((b-a).total_seconds()))
+	#print("train bias: %f"  % (np.mean(error_train)))
+	#print("train var:  %f"  % (np.var(error_train)))
+	#print("test bias:  %f"  % (np.mean(error_test)))
+	#print("test var:   %f"  % (np.var(error_test)))
 
 
 if __name__ == "__main__": 

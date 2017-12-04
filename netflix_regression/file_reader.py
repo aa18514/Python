@@ -18,7 +18,6 @@ class file_reader:
 	def calculate_correlation_coeff(self, labels):
 		data = self.data['movies']
 		best_state = [] 
-		print(labels)
 		pearsonCoefficients = []
 		featureDimension = len(data[0])
 		minimum = -0.0001
@@ -44,16 +43,6 @@ class file_reader:
 		features[:,1:len(features[0])] = (features[:,1:len(features[0])] - self.means)/self.std
 		return features
 
-	def compute_pca(self, x):
-		result = np.array([[1.0] * 6] * len(x))
-		pca = PCA(n_components = 5)
-		pca.fit(x)
-		comp = pca.components_
-		#print(comp)
-		result[:,1:6] = np.dot(x, comp.T)
-		print(result)
-		return result 
-
 
 
 	def non_linear_transformation(self):
@@ -77,9 +66,7 @@ class file_reader:
 			a = datetime.datetime.now()
 			best_state, pearsonCoefficients = self.calculate_correlation_coeff(labels)
 			b = datetime.datetime.now()
-			print((b-a).total_seconds())
-			if(args.verbose == 3): 
-				self.data['movies'] = self.non_linear_transformation()
+			self.data['movies'] = self.non_linear_transformation()
 			return best_state, pearsonCoefficients, self.data['movies']
 	
 	def read_train_data(self):
@@ -87,3 +74,12 @@ class file_reader:
 
 	def read_test_data(self): 
 		return self.data['test']
+
+def compute_pca(train_data, test_data, n_features):
+	pca = PCA(n_components = n_features, whiten = False)
+	pca.fit(train_data)
+	pca.fit(test_data)
+	a = pca.transform(train_data)
+	#print(np.round(pca.explained_variance_ratio_, decimals=4)*100)
+	return a, pca.transform(test_data) 
+

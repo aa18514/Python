@@ -43,6 +43,16 @@ The following graph shows the lambda values for all 671 users:
 the loss function in this case is taken to be L2 norm (Euclidean length between the predictor and the target) <br> 
 Added support for the multi-processing module to parallelize against different values of K respectively <br> 
 
+### Speeding up compute
+
+The joblib libarray was used to distribute work amongst multiple cores - in this case the process of finding an optimal weight for each user, and getting the train and test bias 
+and variance for the user. This has been tested on 4 cores, but in the future the plan is to move the computation to Amazon AWS with support for upto 32 core (in which case simply 
+distributing work amongst multiple cores won't work and there needs to be some sort of aagglomeration of events. 
+
+I am also tempted to move away from NumPy to TensorFlow, identify potential hotspots and move them to Amazon GPU/FPGA instances. I am also tempted to play around with different data types 
+and their affect on the accuracy. 
+
+
 ### Applying non-linear transformation
 
 The non-linear transformation is taken to be each genre multiplied with the rest of the genres in the dataset. <br>
@@ -87,5 +97,20 @@ taking the value of beta equal to 0.9 is analagous to taking the mean over the l
 | **Unregularized (Original Features)**  | 1.932715 | 0.564595 | 2.416220 | 0.130706  | 006.669397 |
 | **Regularized (Original Features)**    | 1.889901 | 0.572407 | 2.276397 | 0.129983  | 476.689539 |
 | **Regularized (Transformed Features)** | 3.869358 | 0.297641 | 5.153465 | 0.068069  | 2100.70408 |
-        
-It can be observed that the test bias for transformed features (regularized) increases from 1.889901 to 3.86938, while the train bias for transformed features (regularized) decreases substantially from 0.572407 which suggests that wee have over-fitted to the training dataset due to the non-linear transformation <br> 
+
+While for the original features, we see that moving from unregluarized version to L2 - regularization has resulted in a decline in the test bias, for the transformed features, the test bias nearly doubles <br> 
+This suggests that we have too many features, and limited dataset. 
+
+For example when the pca was run on the transformed features, and the test and train bias were plotted against n_components, the following diagram was obtained: 
+
+<p align="center"> 
+	<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/error.png" width="400" height="400" /> 
+</p>
+
+As expected we can see that increasing the number of components reduces the test bias. However, data was partitioned according to indiviual users, and for many users the number of samples were less than the number of components <br> 
+due to which the number of features for the transformed vector was clamped to the number of samples for that indiviual. <br>
+
+
+
+
+         
