@@ -79,7 +79,7 @@ The exponentially weighted average is calculated as follows:
 - 
 <img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/CodeCogsEqn.gif" align="center" border="0" alt=" \beta " />)
 *
-<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/theta.gif" align="center" border="0" alt=" \beta " /> 
+<img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/thetha.gif" align="center" border="0" alt=" \beta " /> 
  </p> 
 where meanPrev is initialized to zero <br> 
 after each iteration the value if meanPrev is updated to the value of meanNext respectively <br>
