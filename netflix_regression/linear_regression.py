@@ -136,7 +136,6 @@ def linear_regression_with_regularization(movie_features, train_ratings, test_ra
 	ts[:,1:] = (ts[:,1:] - mean)/(std + 10**-8) 
 	pca = PCA(n_components = n_features)
 	pca.fit(tr)
-	#pca.fit(movie_features[test_ratings[:,1] - 1])
 	ra = pca.transform(tr)
 	rc = pca.transform(movie_features[test_ratings[:,1] - 1])
 	#train = []
@@ -218,7 +217,8 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	train_errors = []
 	train_variance = []
 	test_variance = []
-	for i in range(1, 50):
+	NumberOfFeatures = 10
+	for i in range(1, NumberOfFeatures):
 			a = datetime.datetime.now()
 			error_train, error_test = linear_regression_with_regularization(movie_features, train_ratings, test_ratings, i, args)
 			b = datetime.datetime.now()
@@ -227,8 +227,8 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 			train_errors.append(np.mean(error_train))
 			test_variance.append(np.var(error_test))
 			train_variance.append(np.var(error_train))
-	p = np.poly1d(np.polyfit(np.arange(1, 50, 1), times, 3))
-	x = np.arange(1, 50, 1)
+	p = np.poly1d(np.polyfit(np.arange(1, NumberOfFeatures, 1), times, 3))
+	x = np.arange(1, NumberOfFeatures, 1)
 	plt.plot(x, p(x))
 	plt.plot(x, times, 'r+')
 	plt.title('PCA analysis')
@@ -239,8 +239,8 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	fig = plt.figure()
 	plt.title('PCA analysis')
 	ax = plt.subplot(111)
-	ax.plot(np.arange(1, 50, 1), errors, label = 'test bias')
-	ax.plot(np.arange(1, 50, 1), train_errors, label = 'train error')
+	ax.plot(np.arange(1, NumberOfFeatures, 1), errors, label = 'test bias')
+	ax.plot(np.arange(1, NumberOfFeatures, 1), train_errors, label = 'train error')
 	ax.legend()
 	#plt.legend((ax_train, ax_test), ('train bias', 'test bias'))
 	plt.xlabel('n_components')
@@ -248,8 +248,8 @@ def regression_analysis(movie_features, train_ratings, test_ratings, args):
 	plt.show()
 	plt.title('variance')
 	ax = plt.subplot(111)
-	ax.plot(np.arange(1, 50, 1), train_variance, label = 'test variance')
-	ax.plot(np.arange(1, 50, 1), test_variance, label = 'train variance')
+	ax.plot(np.arange(1, NumberOfFeatures, 1), train_variance, label = 'test variance')
+	ax.plot(np.arange(1, NumberOfFeatures, 1), test_variance, label = 'train variance')
 	ax.legend()
 	#plt.legend((ax_train, ax_test), ('train bias', 'test bias'))
 	plt.xlabel('n_components')
