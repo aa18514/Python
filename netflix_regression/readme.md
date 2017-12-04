@@ -46,8 +46,8 @@ Added support for the multi-processing module to parallelize against different v
 ### Speeding up compute
 
 The joblib libarray was used to distribute work amongst multiple cores - in this case the process of finding an optimal weight for each user, and getting the train and test bias 
-and variance for the user. This has been tested on 4 cores, but in the future the plan is to move the computation to Amazon AWS with support for upto 32 core (in which case simply 
-distributing work amongst multiple cores won't work and there needs to be some sort of aagglomeration of events. 
+and variance for the user. This has been tested on 4 cores, but in the future the plan is to move the compute to **Amazon AWS** with support for upto 32 cores (in which case simply 
+distributing work amongst multiple cores won't work and there needs to be some sort of agglomeration of events. 
 
 I am also tempted to move away from NumPy to TensorFlow, identify potential hotspots and move them to Amazon GPU/FPGA instances. I am also tempted to play around with different data types 
 and their affect on the accuracy. 
