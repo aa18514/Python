@@ -70,6 +70,7 @@ This yields a new dimension vector with a dimension of 172 <br>
 The following figures show the exponentially weighted training and test errors for 671 netflix users, which makes it more conveniant for us to capture the trends in the training and test bias. 
 The exponentially weighted average is calculated as follows: 
 <p align="center"> 
+<img src="http://www.sciweavers.org/tex2img.php?eq=t%20%3D%200..Number%20Of%20Users%20%28671%29%20%0A&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt="t = 0..Number Of Users (671) " width="242" height="19" />
 <img src="http://www.sciweavers.org/tex2img.php?eq=%20%20v_%7Bt%7D%20&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt="  v_{t} " width="21" height="15" /> 
 = 
 <img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/CodeCogsEqn.gif" align="center" border="0" alt=" \beta " />
@@ -81,7 +82,7 @@ The exponentially weighted average is calculated as follows:
 *
 <img src="https://github.com/aa18514/Python/blob/master/netflix_regression/images/thetha.gif" align="center" border="0" alt=" \beta " /> 
  </p> 
-where meanPrev is initialized to zero <br> 
+where v(0) is initialized to zero <br> 
 after each iteration the value if meanPrev is updated to the value of meanNext respectively <br>
 the value of beta chosen for the analysis is 0.9, although in the future this can be experimented choosing an appropiate value of beta can be experimented with in the future. <br>
 Taking the value of beta equal to 0.9 is analagous to taking the mean over the last 10 iterations <br>
