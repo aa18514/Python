@@ -5,9 +5,6 @@ import multiprocessing
 
 
 def ProcessInput(j):
-	"""sort according to mantissa
-	need to check for large fluctuations in mantissa?
-	"""
 	dataset = np.random.uniform(low = -10, high = 10, size = (j,))
 	data = np.array(10**dataset, dtype = np.float32)
 	sum_dataset1 = 0
@@ -21,7 +18,7 @@ def ProcessInput(j):
 
 if __name__ == "__main__":
 	errors = []
-	n_features = 50000
+	n_features = 100000
 	quant = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(delayed(ProcessInput)(i) for i in range(1, n_features)))
 	plt.figure(0)
 	plt.plot(quant[:,0], 'r+')
