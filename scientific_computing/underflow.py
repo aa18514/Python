@@ -14,13 +14,14 @@ def ProcessInput(j):
 			quant.append(data[i])
 		sum_dataset1 += data[i]
 	quant = np.array(quant)
+	print(np.sum(quant))
+	
 	return np.sum(quant), (100 * np.sum(quant))/sum_dataset1
 
 if __name__ == "__main__":
 	errors = []
 	n_features = 100000
 	quant = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(delayed(ProcessInput)(i) for i in range(1, n_features)))
-	print(np.sum(quant))
 	plt.figure(0)
 	plt.plot(quant[:,0], 'r+')
 	p = np.poly1d(np.polyfit(np.arange(1, n_features, 1), quant[:,0], 4))
