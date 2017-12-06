@@ -1,4 +1,4 @@
-# validating against floating point under-flows
+# validating against floating point addition under-flows
 
 This is only a initial attempt, there are many potential directions that the project could be taken to. <br> 
 For example, distributing the compute amongst several machines, and exploring under-flow for different floating point representations <br> 
