@@ -1,14 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
 import scipy
-from sklearn import linear_model
 import math
 import argparse
 import textwrap
-from itertools import chain
 import datetime
 import itertools
+from sklearn import linear_model
+from itertools import chain
+from sklearn.decomposition import PCA
 from sklearn.cross_validation import KFold
 from file_reader import compute_pca
 from datetime import timedelta
@@ -18,6 +18,11 @@ import multiprocessing
 
 
 def quantize(expected_ratings):
+    """
+    quantize movie ratings nearest to 0.5, any ratings less than
+    0 are capped at 0, and any ratings beyond 5.0 are capped at 5.0.
+    @expected_ratings: predicted ratings obtained using regression
+    """
     ratings = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.50]
     expected_ratings[np.where(expected_ratings < 0.25)] = 0.00
     for val in ratings:
@@ -30,17 +35,32 @@ def quantize(expected_ratings):
 
 
 def compute_error(weights, test_ratings, movie_features):
+    """
+    return MSE between actual and predicted ratings
+    weights: weights corresponding to the movie features
+    movie features: 1/0 indicating if the paticular genre exists
+    """
     expected_ratings = quantize(np.dot(weights, np.array(movie_features).T))
     return np.mean((expected_ratings - test_ratings)**2)
 
 
 def train_dataset(feature_dimension, features, ratings, lambd_val):
+    """
+    train ridge regressor where ratings is the predicted values
+    and features indicate the feature vector
+    lambd val: L2 penalty (used to control overfitting
+    """
     clf = linear_model.Ridge(alpha=lambd_val, normalize=False, fit_intercept=False, solver='lsqr')
     clf.fit(features.reshape(len(ratings), feature_dimension), ratings)
     return clf.coef_
 
 
 def k_fold_algorithm(movie_ratings, feature_dimension, res, values_of_lambda, K):
+    """
+    run cross fold validation corresponding to the value of regularization parameter and
+    different values for K, i.e the number of folds
+    @use multiprocessing to parallelize the cross fold validation
+    """
     errors = []
     cv = KFold(len(movie_ratings), n_folds=K)
     for obj in cv:
@@ -55,6 +75,11 @@ def k_fold_algorithm(movie_ratings, feature_dimension, res, values_of_lambda, K)
 
 
 def naive_linear_regression(movie_ratings, res):
+    """
+    a variant of ridge regressor where lambda = 0
+    @movie_ratings: 19 dimensional feature vectors
+    @res: actual value of the rating
+    """
     return np.dot(np.linalg.pinv(movie_ratings), res.T)
 
 
@@ -67,6 +92,12 @@ def compute(weight, partitioned_test_ratings, partitioned_movie_features):
 
 
 def processInput(i, ratings, movie_features, algorithm, args):
+    """
+    processInput multiplexes between native linear regression, linear regression
+    with non-linear transformation and ridge regressor
+    the processInput function is parallelized between multiple users amongst n cores
+    where n is the maximum number of cores present on the CPU
+    """
     person = ratings[(ratings[:, 0] - 1) == i]
     movie_ratings = movie_features[np.where(ratings[:, 0] - 1 == i)][:, 1:]
     feature_dimension = len(movie_ratings[0])
@@ -81,7 +112,8 @@ def processInput(i, ratings, movie_features, algorithm, args):
 
 
 def extract_person(ratings, algorithm, movie_features, *args, **kwargs):
-    j = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(delayed(processInput)(i, ratings, movie_features, algorithm, args) for i in range(671)))
+    j = np.array(Parallel(n_jobs=multiprocessing.cpu_count())\
+            (delayed(processInput)(i, ratings, movie_features, algorithm, args) for i in range(671)))
     regularized_constants = np.array([x for _, x in sorted(zip(j[:, 4], j[:, 0]))])
     weight = np.array([x for _, x in sorted(zip(j[:, 4], j[:, 3]))])
     partitioned_ratings = np.array([x for _, x in sorted(zip(j[:, 4], j[:, 2]))])
@@ -135,23 +167,26 @@ def compute_multiple_pca(i, TrainRatings, TestRatings, TrainMovieFeatures, TestM
     return [1], a, pca.transform(test_movie_ratings)
 
 
+def standardize(data, mean, std, epsilon=10**-8):
+    return (data - mean)/(std + epsilon)
+
 def linear_regression_with_regularization(movie_features, train_ratings, test_ratings, n_features, args, epsilon=10**-8):
     """a total of 671 users, 700003 movies, the function handles linear_model regression
     for each user, linear regression with regularization, and non -linear transformation """
     tr = movie_features[train_ratings[:, 1] - 1]
     ts = movie_features[test_ratings[:, 1] - 1]
-    mean = np.mean(tr[:, 1:], axis=0)
-    std = np.std(tr[:, 1:], axis=0)
-    tr[:, 1:] = (tr[:, 1:] - mean)/(std + epsilon)
-    ts[:, 1:] = (ts[:, 1:] - mean)/(std + epsilon)
+    tr[:, 1:] = standardize(tr[:, 1;], np.mean(tr[:, 1], axis = 0), \
+                            np.std(tr[:, 1], axis = 0))
+    
+    ts[:, 1:] = standardize(ts[:, 1:], np.mean(tr[:, 1], axis = 0), \
+                            np.std(tr[:, 1], axis = 0))
+    
     pca = PCA(n_components=n_features)
     pca.fit(tr)
-    ra = pca.transform(tr)
-    rc = pca.transform(movie_features[test_ratings[:, 1] - 1])
     b = np.ones((70002, n_features + 1))
     c = np.ones((30002, n_features + 1))
-    b[:, 1:] = ra
-    c[:, 1:] = rc
+    b[:, 1:] = pca.transform(tr)
+    c[:, 1:] = pca.transform(movie_features[test_ratings[:, 1] - 1])
     b[:, 0] = train_ratings[:, 1]
     c[:, 0] = test_ratings[:, 1]
 
