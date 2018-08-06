@@ -9,7 +9,7 @@ c = 0.5
 def plot_linear_classifier(w):
 	"""w is the updated weight vector"""
 	t = np.arange(-90, 90, 0.1)
-	if(w[2] == 0 and w[1] != 0): 
+	if w[2] == 0 and w[1] != 0: 
 		plt.axvline(x = (-w[0]/w[1]))
 	else:
 		print(w)
@@ -18,7 +18,7 @@ def plot_linear_classifier(w):
 def plot_data_points(inputs, y, sample_size):
 	"""plot the 2-D features on the x and the y axis, a point is '+' if corresponding y value is +1, otherwise it is '-1'"""
 	for i in range(0, sample_size): 
-		if(y[i] == 1):
+		if y[i] == 1:
 			plt.plot(inputs[i][1], inputs[i][2], 'r+', markersize = np.sqrt(20))
 		else:
 			plt.plot(inputs[i][1], inputs[i][2], 'yo', markersize = np.sqrt(35))
@@ -29,7 +29,7 @@ def perceptron(inputs, y, sample_size):
 	w = np.array([0, 0, 0])
 	i = 1 
 	while i < sample_size+1: 
-		if(np.dot(inputs[i-1], w)*y[i-1] <= 0): 
+		if np.dot(inputs[i-1], w)*y[i-1] <= 0: 
 			z = inputs[i-1]*y[i-1]
 			w = np.add(z, w)
 			i = 1 
@@ -44,7 +44,7 @@ def generate_dataset(sample_size):
 	for i in range(0, sample_size): 
 		inputs[i][1] = random.uniform(-sample_size,sample_size)
 		inputs[i][2] = random.uniform(-sample_size,sample_size)
-		if(a * inputs[i][1] + b * inputs[i][2] + c <= 0 ): 
+		if a * inputs[i][1] + b * inputs[i][2] + c <= 0: 
 			y[i] = 1
 		else:
 			y[i] = -1
@@ -69,5 +69,3 @@ def part_a():
 		plt.xlabel('x1')
 		plt.ylabel('x2')
 	plt.show()
-
-	
