@@ -4,6 +4,7 @@ import numpy as np
 from datetime import datetime
 from typing import List
 from collections import OrderedDict
+import pickle
 
 Vector_int = List[int]
 
@@ -21,6 +22,8 @@ ELECTRICITY_YEARS = {
         2012: {},
         2011: {}
     }
+
+ORDERED_DICT = None
 
 
 def load_file_attributes(path: str, nd_key: str, settlement_key: str) -> str:
@@ -40,9 +43,9 @@ def load_file_attributes(path: str, nd_key: str, settlement_key: str) -> str:
 
 
 def query_data(year: int)->int:
+    dict_list = []
     ordered_dict = OrderedDict(sorted(ELECTRICITY_YEARS[year].items(),
                                       key=lambda t: t[0]))
-    dict_list = []
     data = list(ordered_dict.values())
     for sublist in data:
         for val in sublist:
@@ -83,6 +86,13 @@ def print_data_summary(data: Vector_int, dt_index: Vector_int, granularity_const
     plt.plot(x, mean)
 
 
+def write_to_pkl(year: int, file_path: str)->(int, str):
+    ordered_dict = OrderedDict(sorted(ELECTRICITY_YEARS[year].items(),
+                                      key=lambda t: t[0]))
+    with open(file_path, "wb") as f:
+        pickle.dump(ordered_dict, f)
+
+
 def decode_electricity_data(path: str, net_demand: str, settlement_date: str)->str:
     dt_index = load_file_attributes(path, net_demand, settlement_date)
     dt_index = np.sort(dt_index)
@@ -93,6 +103,10 @@ def decode_electricity_data(path: str, net_demand: str, settlement_date: str)->s
     visualize_data(data)
     partition_data(dt_index)
     plt.show()
+    years = [2011, 2012, 2013, 2014, 2015, 2016, 2017]
+    for year in years:
+        if len(ELECTRICITY_YEARS[year].keys()) > 0:
+            write_to_pkl(year, "data_" + str(year) + ".pkl")
 
 
 if __name__ == "__main__":
