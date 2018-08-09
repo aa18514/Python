@@ -6,9 +6,11 @@ from typing import List
 from collections import OrderedDict
 from numpy import log
 from statsmodels.tsa.stattools import adfuller
+from statsmodels.graphics.tsaplots import plot_acf
+from statsmodels.graphics.tsaplots import plot_pacf
 
 Vector_int = List[int]
-
+Vector_float = List[float]
 
 DATE_STR = ['Jan', 'Feb', 'March', 'April',
             'May', 'Jun', 'Jul', 'Aug',
@@ -123,6 +125,21 @@ def dickey_fuller_test(series: Vector_int)->Vector_int:
     return s_test[1]
 
 
+def auto_correlation_test(series: Vector_float)->Vector_float:
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3))
+    #ACF chart
+    fig = plot_acf(series, lags=20, ax=ax1)
+    #draw 95% confidence interval line
+    ax1.axhline(y=-1.96/np.sqrt(len(series)), linestyle='--', color='gray')
+    ax1.axhline(y=1.96/np.sqrt(len(series)), linestyle='--', color='gray')
+    ax1.set_xlabel('Lags')
+    fig = plot_pacf(series, lags=20, ax=ax2)
+    ax2.axhline(y=-1.96/np.sqrt(len(series)), linestyle='--', color='gray')
+    ax2.axhline(y=1.96/np.sqrt(len(series)), linestyle='--', color='gray')
+    ax2.set_xlabel('Lags')
+    plt.show()
+
+
 def decode_electricity_data(path: str, net_demand: str, settlement_date: str)->str:
     dt_index = load_file_attributes(path, net_demand, settlement_date)
     dt_index = np.sort(dt_index)
@@ -145,7 +162,9 @@ def decode_electricity_data(path: str, net_demand: str, settlement_date: str)->s
     partition_data(dt_index)
     plt.show()
     p_val = dickey_fuller_test(data)
+    auto_correlation_test(data)
     print(p_val)
+
 
 if __name__ == "__main__":
     decode_electricity_data("DemandData_2017.csv", 'ND', 'SETTLEMENT_DATE')
