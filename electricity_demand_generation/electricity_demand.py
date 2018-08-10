@@ -194,6 +194,12 @@ def decode_electricity_data(path: str, net_demand: str, settlement_date: str)->s
     dt_index = np.sort(dt_index)
     dt_index = np.where(dt_index[:-1] != dt_index[1:])[0]
     data, dt_sorted = query_data(2017)
+    return data, dt_sorted, dt_index
+
+
+if __name__ == "__main__":
+    data, dt_sorted, dt_index = \
+        decode_electricity_data("data\DemandData_2017.csv", 'ND', 'SETTLEMENT_DATE')
     fig = plt.figure()
     ax = fig.add_subplot(111)
     visualize_data(ax, data,
@@ -220,7 +226,3 @@ def decode_electricity_data(path: str, net_demand: str, settlement_date: str)->s
     ARIMA_rolling_forecast(data)
     build_arima_model(data, dt_index)
     print(p_val)
-
-
-if __name__ == "__main__":
-    decode_electricity_data("data\DemandData_2017.csv", 'ND', 'SETTLEMENT_DATE')
