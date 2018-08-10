@@ -8,11 +8,13 @@ from numpy import log
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.graphics.tsaplots import plot_acf
 from statsmodels.graphics.tsaplots import plot_pacf
+from statsmodels.tsa.arima_model import ARIMA
+from matplotlib.axes import Axes
 
 Vector_int = List[int]
 Vector_float = List[float]
 
-DATE_STR = ['Jan', 'Feb', 'March', 'April',
+DATE_STR = ['Jan', 'Feb', 'Mar', 'Apr',
             'May', 'Jun', 'Jul', 'Aug',
             'Sept', 'Oct', 'Nov', 'Dec']
 
@@ -72,31 +74,33 @@ def query_data(year: int)->int:
     return dict_list, dates
 
 
-def visualize_data(e_consumption: Vector_int,
+def visualize_data(ax: Axes, y: Vector_int,
                    title: str, x_label: str,
                    y_label: str,
-                   label: str)->(Vector_int, str):
+                   label: str)->(Axes, Vector_int, str):
     """
     @data: electricity consumption in MW
     """
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    plt.title(title)
-    plt.xlabel(x_label)
-    plt.ylabel(y_label)
-    x = np.arange(0, len(e_consumption))
-    plt.xticks(np.arange(min(x), max(x) + 1, 1500), DATE_STR)
-    plt.plot(x, e_consumption, label=label)
+    x = np.arange(0, len(y))
+    ax.set_title(title)
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    ax.set_xticks(np.arange(min(x), max(x), 1500))
+    ax.set_xticklabels(DATE_STR)
+    ax.plot(x, y, label=label)
     ax.legend(loc='lower left')
 
 
-def partition_data(dt_index: Vector_int)->Vector_int:
+def partition_data(dt_index: Vector_int, ax)->Vector_int:
     """
     plot vertical lines separating the data into multiple months
     :return:
     """
     for i in range(len(dt_index)):
-        plt.axvline(x=dt_index[i], c='r')
+        if ax is None:
+            plt.axvline(x=dt_index[i], c='r')
+        else:
+            ax.axvline(x=dt_index[i], c='r')
 
 
 def print_data_summary(data: Vector_int, dt_index: Vector_int, granularity_constant: int)->(Vector_int, int):
@@ -109,10 +113,11 @@ def print_data_summary(data: Vector_int, dt_index: Vector_int, granularity_const
 
 
 def pre_process(data: Vector_int, interval: int)->(Vector_int, int):
+    data_diff = None
     data = remove_seasonality(data)
     for i in range(interval):
-        data = remove_trend(data)
-    return data
+        data_diff = remove_trend(data)
+    return data_diff, data
 
 
 def dickey_fuller_test(series: Vector_int)->Vector_int:
@@ -128,15 +133,59 @@ def dickey_fuller_test(series: Vector_int)->Vector_int:
 def auto_correlation_test(series: Vector_float)->Vector_float:
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3))
     #ACF chart
-    fig = plot_acf(series, lags=20, ax=ax1)
+    plot_acf(series, lags=20, ax=ax1)
     #draw 95% confidence interval line
     ax1.axhline(y=-1.96/np.sqrt(len(series)), linestyle='--', color='gray')
     ax1.axhline(y=1.96/np.sqrt(len(series)), linestyle='--', color='gray')
     ax1.set_xlabel('Lags')
-    fig = plot_pacf(series, lags=20, ax=ax2)
+    plot_pacf(series, lags=20, ax=ax2)
     ax2.axhline(y=-1.96/np.sqrt(len(series)), linestyle='--', color='gray')
     ax2.axhline(y=1.96/np.sqrt(len(series)), linestyle='--', color='gray')
     ax2.set_xlabel('Lags')
+    plt.show()
+
+
+def ARIMA_rolling_forecast(series: Vector_float)->Vector_float:
+    streaming_data_model = list()
+    predictions = list()
+    observations = list()
+    low_ci = list()
+    upper_ci = list()
+    for i in range(2500):
+        streaming_data_model.append(series[i])
+    for i in range(2500, 2600):
+        model = ARIMA(streaming_data_model, order=(1, 0, 1))
+        model_fit = model.fit(disp=0)
+        predictions.append(model_fit.forecast()[0])
+        observations.append(series[i])
+        streaming_data_model.append(series[i])
+        l, h = model_fit.forecast()[2][0]
+        low_ci.append(l)
+        upper_ci.append(h)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.title('predicted vs observed electricity net demand')
+    plt.xlabel('observations')
+    plt.ylabel('net demand for electricity/KW')
+    x = np.arange(0, len(observations))
+    plt.plot(x, np.exp(observations), label='observation')
+    plt.plot(x, np.exp(predictions).flatten(), label='prediction')
+    ax.fill_between(x, np.exp(low_ci), np.exp(upper_ci), color='#539caf', alpha=0.4, label='95% CI')
+    ax.legend(loc='lower left')
+    plt.show()
+
+
+def build_arima_model(series: Vector_float, dt_index)->(Vector_float, Vector_int):
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3))
+    model = ARIMA(series, order=(1, 0, 1))
+    results_ARIMA = model.fit(disp=0)
+    prediction_values = results_ARIMA.predict()
+    visualize_data(ax1, prediction_values, 'predicted_time_series', 'time',
+                   'consumption in KW', None)
+    partition_data(dt_index, ax1)
+    visualize_data(ax2, prediction_values, 'original time series', 'time',
+                   'consumption in KW', None)
+    partition_data(dt_index, ax2)
     plt.show()
 
 
@@ -145,24 +194,31 @@ def decode_electricity_data(path: str, net_demand: str, settlement_date: str)->s
     dt_index = np.sort(dt_index)
     dt_index = np.where(dt_index[:-1] != dt_index[1:])[0]
     data, dt_sorted = query_data(2017)
-    visualize_data(data,
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    visualize_data(ax, data,
                    'NATIONAL GRID time series - original',
                    'time in 2017',
                    'electricity consumption in MW',
                    'original features')
     dt_index = np.append(0, dt_index)
     dt_index = np.append(dt_index, len(data) - 1)
-    partition_data(dt_index)
-    data = pre_process(data, 1)
-    visualize_data(data,
+    partition_data(dt_index, None)
+    plt.show()
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    data_diff, data = pre_process(data, 1)
+    visualize_data(ax, data,
                    'NATIONAL GRID de-trended and de-seasonalized time series',
                    'time in 2017',
                    'modified features',
                    'sixth-order log differencing')
-    partition_data(dt_index)
+    partition_data(dt_index, None)
     plt.show()
     p_val = dickey_fuller_test(data)
     auto_correlation_test(data)
+    ARIMA_rolling_forecast(data)
+    build_arima_model(data, dt_index)
     print(p_val)
 
 
