@@ -39,21 +39,23 @@ def remove_trend(x_data: Vector_int)->Vector_int:
      first-order differencing to remove trend
     :return: de-trended series
     """
-    diff = list()
+    diff = []
     for i in range(1, len(x_data)):
         value = x_data[i] - x_data[i - 1]
         diff.append(value)
     return diff
 
 
-def load_file_attributes(path: str, nd_key: str, settlement_key: str) -> str:
+def load_file_attributes(path: str, nd_key: str, settlement_key: str, electricity_year: int)-> \
+        (str, int):
     """return electricity consumption in MW,
     and the settlement dates"""
     reader = csv.DictReader(open(path, 'r'))
     months = []
     for line in reader:
         val = datetime.strptime(line[settlement_key], '%d/%m/%Y')
-        months.append(val.month)
+        if val.year == electricity_year:
+            months.append(val.month)
         if val not in ELECTRICITY_YEARS[val.year]:
                 ELECTRICITY_YEARS[val.year][val] = [int(line[nd_key])]
         else:
@@ -61,20 +63,19 @@ def load_file_attributes(path: str, nd_key: str, settlement_key: str) -> str:
     return np.array(months)
 
 
-def query_data(year: int)->int:
-    ordered_dict = OrderedDict(sorted(ELECTRICITY_YEARS[year].items(),
+def query_data(electricity_year: int)->int:
+    ordered_dict = OrderedDict(sorted(ELECTRICITY_YEARS[electricity_year].items(),
                                       key=lambda t: t[0]))
     dict_list = []
-    data = list(ordered_dict.values())
-    for sublist in data:
+    for sublist in ordered_dict.values():
         for val in sublist:
             dict_list.append(val)
     dict_list = np.array(dict_list, dtype=int)
-    dates = np.array(list(ordered_dict.keys()))
+    dates = np.array(ordered_dict.keys())
     return dict_list, dates
 
 
-def visualize_data(ax: Axes, y: Vector_int,
+def visualize_data(axes: Axes, y: Vector_int,
                    title: str, x_label: str,
                    y_label: str,
                    label: str)->(Axes, Vector_int, str):
@@ -82,42 +83,41 @@ def visualize_data(ax: Axes, y: Vector_int,
     @data: electricity consumption in MW
     """
     x = np.arange(0, len(y))
-    ax.set_title(title)
-    ax.set_xlabel(x_label)
-    ax.set_ylabel(y_label)
-    ax.set_xticks(np.arange(min(x), max(x), 1500))
-    ax.set_xticklabels(DATE_STR)
-    ax.plot(x, y, label=label)
-    ax.legend(loc='lower left')
+    axes.set_title(title)
+    axes.set_xlabel(x_label)
+    axes.set_ylabel(y_label)
+    axes.set_xticks(np.arange(min(x), max(x), 1500))
+    axes.set_xticklabels(DATE_STR)
+    axes.plot(x, y, label=label)
+    axes.legend(loc='lower left')
 
 
-def partition_data(dt_index: Vector_int, ax)->Vector_int:
+def partition_data(datetime_index: Vector_int, axes)->Vector_int:
     """
     plot vertical lines separating the data into multiple months
     :return:
     """
-    for i in range(len(dt_index)):
-        if ax is None:
-            plt.axvline(x=dt_index[i], c='r')
+    for i in range(len(datetime_index)):
+        if axes is None:
+            plt.axvline(x=datetime_index[i], c='r')
         else:
-            ax.axvline(x=dt_index[i], c='r')
+            ax.axvline(x=datetime_index[i], c='r')
 
 
-def print_data_summary(data: Vector_int, dt_index: Vector_int, granularity_constant: int)->(Vector_int, int):
+def print_data_summary(time_series_data: Vector_int, datetime_index: Vector_int, granularity_constant: int)\
+        ->(Vector_int, int):
     mean = []
     for i in range(0, len(dt_index) - 1):
-        mean.append(np.mean(data[dt_index[i]:dt_index[i+1]]))
+        mean.append(np.mean(time_series_data[datetime_index[i]:datetime_index[i+1]]))
     x = np.arange(0, len(mean))
     plt.xticks(np.arange(min(x), max(x) + 1, granularity_constant), DATE_STR)
     plt.plot(x, mean)
 
 
-def pre_process(data: Vector_int, interval: int)->(Vector_int, int):
-    data_diff = None
-    data = remove_seasonality(data)
-    for i in range(interval):
-        data_diff = remove_trend(data)
-    return data_diff, data
+def pre_process(time_series_data: Vector_int, interval: int)->(Vector_int, int):
+    de_seasoned_data = remove_seasonality(time_series_data)
+    de_trended_data = remove_trend(de_seasoned_data) #ignore interval at the minute
+    return de_trended_data, de_seasoned_data
 
 
 def dickey_fuller_test(series: Vector_int)->Vector_int:
@@ -131,10 +131,14 @@ def dickey_fuller_test(series: Vector_int)->Vector_int:
 
 
 def auto_correlation_test(series: Vector_float)->Vector_float:
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3))
-    #ACF chart
+    """
+    :param series: the time series under analysis
+    plot auto-correlation function and partial auto-correlation function with
+    95% confidence interval
+    :return: nothing
+    """
+    _, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3))
     plot_acf(series, lags=20, ax=ax1)
-    #draw 95% confidence interval line
     ax1.axhline(y=-1.96/np.sqrt(len(series)), linestyle='--', color='gray')
     ax1.axhline(y=1.96/np.sqrt(len(series)), linestyle='--', color='gray')
     ax1.set_xlabel('Lags')
@@ -145,15 +149,15 @@ def auto_correlation_test(series: Vector_float)->Vector_float:
     plt.show()
 
 
-def ARIMA_rolling_forecast(series: Vector_float)->Vector_float:
+def arima_rolling_forecast(series: Vector_float)->Vector_float:
     streaming_data_model = list()
     predictions = list()
     observations = list()
     low_ci = list()
     upper_ci = list()
-    for i in range(2500):
+    for i in range(5000):
         streaming_data_model.append(series[i])
-    for i in range(2500, 2600):
+    for i in range(5000, 5100):
         model = ARIMA(streaming_data_model, order=(1, 0, 1))
         model_fit = model.fit(disp=0)
         predictions.append(model_fit.forecast()[0])
@@ -162,44 +166,64 @@ def ARIMA_rolling_forecast(series: Vector_float)->Vector_float:
         l, h = model_fit.forecast()[2][0]
         low_ci.append(l)
         upper_ci.append(h)
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    figure = plt.figure()
+    axes = figure.add_subplot(111)
     plt.title('predicted vs observed electricity net demand')
     plt.xlabel('observations')
     plt.ylabel('net demand for electricity/KW')
     x = np.arange(0, len(observations))
     plt.plot(x, np.exp(observations), label='observation')
     plt.plot(x, np.exp(predictions).flatten(), label='prediction')
-    ax.fill_between(x, np.exp(low_ci), np.exp(upper_ci), color='#539caf', alpha=0.4, label='95% CI')
-    ax.legend(loc='lower left')
+    axes.fill_between(x, np.exp(low_ci), np.exp(upper_ci), color='#539caf', alpha=0.4, label='95% CI')
+    axes.legend(loc='lower left')
     plt.show()
 
 
-def build_arima_model(series: Vector_float, dt_index)->(Vector_float, Vector_int):
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3))
-    model = ARIMA(series, order=(1, 0, 1))
-    results_ARIMA = model.fit(disp=0)
-    prediction_values = results_ARIMA.predict()
-    visualize_data(ax1, prediction_values, 'predicted_time_series', 'time',
+def build_arima_model(series: Vector_float, month_index)->(Vector_float, Vector_int):
+    figure, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3))
+    model = ARIMA(series, order=(2, 0, 2))
+    model_fit = model.fit(disp=0)
+    prediction_values = model_fit.predict()
+    visualize_data(ax1, np.exp(prediction_values), 'predicted_time_series', 'time',
                    'consumption in KW', None)
     partition_data(dt_index, ax1)
-    visualize_data(ax2, prediction_values, 'original time series', 'time',
+    visualize_data(ax2, np.exp(series), 'original time series', 'time',
                    'consumption in KW', None)
-    partition_data(dt_index, ax2)
+    partition_data(month_index, ax2)
     plt.show()
+    print(np.mean(np.abs(np.exp(prediction_values) - np.exp(series))))
+    print(np.mean(np.abs(np.exp(prediction_values) - np.exp(series))/np.exp(series)))
 
 
-def decode_electricity_data(path: str, net_demand: str, settlement_date: str)->str:
-    dt_index = load_file_attributes(path, net_demand, settlement_date)
-    dt_index = np.sort(dt_index)
-    dt_index = np.where(dt_index[:-1] != dt_index[1:])[0]
-    data, dt_sorted = query_data(2017)
-    return data, dt_sorted, dt_index
+def decode_electricity_data(path: str, net_demand: str, settlement_date: str, year: int)->(str, int):
+    month_index = load_file_attributes(path, net_demand, settlement_date, year)
+    month_index = np.sort(month_index)
+    month_index = np.where(month_index[:-1] != month_index[1:])[0]
+    electricity_demand, month_sorted = query_data(year)
+    return electricity_demand, month_sorted, month_index
 
 
 if __name__ == "__main__":
-    data, dt_sorted, dt_index = \
-        decode_electricity_data("data\DemandData_2017.csv", 'ND', 'SETTLEMENT_DATE')
+    data = np.array([])
+    dt_index = None
+    for year in range(2011, 2017):
+        data_1, dt_sorted_1, dt_index_1 = \
+            decode_electricity_data("data\DemandData_2011-2016.csv", "ND", "SETTLEMENT_DATE", year)
+        data = np.append(data, data_1)
+        if dt_index is None:
+            dt_index = np.append(dt_index_1, len(data_1) - 1)
+        else:
+            dt_index = np.append(dt_index,
+                                 [dt_index[:-1] + val for val in dt_index_1])
+    data_0, dt_sorted_0, dt_index_0 = \
+        decode_electricity_data("data\DemandData_2017.csv", 'ND', 'SETTLEMENT_DATE', 2017)
+
+    data = np.append(data, data_0)
+    dt_index = np.append(dt_index, dt_index_0)
+    dt_index = np.append(dt_index, len(data_0) - 1)
+    dt_index = np.append(dt_index,
+                         [dt_index[:-1] + val for val in dt_index_1])
+    print("success")
     fig = plt.figure()
     ax = fig.add_subplot(111)
     visualize_data(ax, data,
@@ -209,20 +233,23 @@ if __name__ == "__main__":
                    'original features')
     dt_index = np.append(0, dt_index)
     dt_index = np.append(dt_index, len(data) - 1)
-    partition_data(dt_index, None)
+    #partition_data(dt_index, None)
     plt.show()
     fig = plt.figure()
     ax = fig.add_subplot(111)
+    print(data)
     data_diff, data = pre_process(data, 1)
     visualize_data(ax, data,
                    'NATIONAL GRID de-trended and de-seasonalized time series',
                    'time in 2017',
                    'modified features',
                    'sixth-order log differencing')
-    partition_data(dt_index, None)
+    #partition_data(dt_index, None)
     plt.show()
     p_val = dickey_fuller_test(data)
-    auto_correlation_test(data)
-    ARIMA_rolling_forecast(data)
-    build_arima_model(data, dt_index)
-    print(p_val)
+    if p_val < 0.05:
+        auto_correlation_test(data)
+        arima_rolling_forecast(data)
+        build_arima_model(data, dt_index)
+    else:
+        print("this series is not stationary, p-val %f" % p_val)
