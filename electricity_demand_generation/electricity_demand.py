@@ -223,4 +223,4 @@ def decode_electricity_data(path: str, net_demand: str, settlement_date: str)->s
 
 
 if __name__ == "__main__":
-    decode_electricity_data("DemandData_2017.csv", 'ND', 'SETTLEMENT_DATE')
+    decode_electricity_data("data\DemandData_2017.csv", 'ND', 'SETTLEMENT_DATE')
