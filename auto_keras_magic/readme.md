@@ -3,7 +3,12 @@
 ## Description
 Use of an open source library [AutoKeras](https://autokeras.com/) for automated machine learning.
 AutoKeras provides the functions to automatically search for architecture
-and parameters for deep learning models.
+and parameters for deep learning models. [Olivetti Faces Dataset](http://scikit-learn.org/stable/datasets/olivetti_faces.html)
+was used for evaluation of the library with a train test split of 75:25
+
+## Results
+Train accuracy of 95% and Test Accuracy of 99% was achieved on the data-set, with average precision, recall
+and f1-score at 99% respectively.
 
 ## Issues
 At this point in time, there are some issues with the Windows version of
