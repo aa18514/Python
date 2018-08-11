@@ -1,7 +1,7 @@
 # Machine Learning Using AutoKeras
 
 ## Description
-Use of an open source library 'AutoKeras' for automated machine learning.
+Use of an open source library [AutoKeras](https://autokeras.com/) for automated machine learning.
 AutoKeras provides the functions to automatically search for architecture
 and parameters for deep learning models.
 
