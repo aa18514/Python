@@ -7,11 +7,11 @@ and parameters for deep learning models. [Olivetti Faces Dataset](http://scikit-
 was used for evaluation of the library with a train test split of 75:25
 
 ## Results
-Train accuracy of 95% and Test Accuracy of 99% was achieved on the data-set. <br>
-Average Precision, Recall and F1-score were at 99% respectively. <br>
-The classification report with Precision, Recall, F1-Score and Support is given in
+Train accuracy of 92.8% and Test Accuracy of 97% was achieved on the data-set. <br>
+Average Precision, Recall and F1-score were at 97%, 98%, and 97% respectively. The total support was 100 samples. <br>
+The classification report containing average precision, recall, f1-score and total support along with the precision, recall, f1-score and support for each class is given in
 the file 'classification_report.csv'. <br>
-The training process took place for around 34 epochs and ~21.854 seconds.
+The training process took place for around 26 epochs and ~23.504 seconds.
 
 ## Issues
 At this point in time, there are some issues with the Windows version of
@@ -43,4 +43,12 @@ File "C:\Users\user\AppData\Local\Programs\Python\Python36\
 raise self._value <br>
 multiprocessing.pool.MaybeEncodingError: error sending result '[(98.08, tensor=(2.3784, device='cuda:0'), <autokeras.graph.Graph.object at 0x000002821B58E668>)]' <br>
 Reason: 'RuntimeError('cuda runtime error (71) : operation not supported at c:\\new-builder_3\\win-wheel\\pytorch\\torch\\csrc\\generic\\StorageSharing.cpp:231',)' <br>
-Unfortunately it looks like multiprocessing and PyTorch do not seem to work well together. A hack to this problem is to replace the line:
+Unfortunately it looks like multiprocessing and PyTorch do not seem to work well together. A hack to this problem is to replace line 178: <br>
+"train_results = pool.map_async(train, [(graph, train_data, test_data, self.trainer_args, <br>
+                                                os.path.join(self.path, str(model_id) + '.png'), self.verbose)])" <br>
+with: <br>
+train_results = train((graph, train_data, test_data, self.trainer_args, os.path.join(self.path, str(model_id) + '.png'), self.verbose)) <br>
+and replace line 190 <br>
+accuracy, loss, graph = train_results.get()[0] <br>
+with: <br>
+accuracy, loss, graph = train_results <br>
