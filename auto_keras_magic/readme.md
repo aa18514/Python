@@ -7,8 +7,9 @@ and parameters for deep learning models. [Olivetti Faces Dataset](http://scikit-
 was used for evaluation of the library with a train test split of 75:25
 
 ## Results
-Train accuracy of 95% and Test Accuracy of 99% was achieved on the data-set, with average precision, recall
-and f1-score at 99% respectively.
+Train accuracy of 95% and Test Accuracy of 99% was achieved on the data-set. <br>
+Average Precision, Recall and F1-score were at 99% respectively. <br>
+The training process took place for around 34 epochs.
 
 ## Issues
 At this point in time, there are some issues with the Windows version of
