@@ -11,7 +11,7 @@ Train accuracy of 95% and Test Accuracy of 99% was achieved on the data-set. <br
 Average Precision, Recall and F1-score were at 99% respectively. <br>
 The classification report with Precision, Recall, F1-Score and Support is given in
 the file 'classification_report.csv'. <br>
-The training process took place for around 34 epochs.
+The training process took place for around 34 epochs and ~21.854 seconds.
 
 ## Issues
 At this point in time, there are some issues with the Windows version of
