@@ -9,6 +9,8 @@ was used for evaluation of the library with a train test split of 75:25
 ## Results
 Train accuracy of 95% and Test Accuracy of 99% was achieved on the data-set. <br>
 Average Precision, Recall and F1-score were at 99% respectively. <br>
+The classification report with Precision, Recall, F1-Score and Support is given in
+the file 'classification_report.csv'. <br>
 The training process took place for around 34 epochs.
 
 ## Issues
@@ -23,7 +25,8 @@ accuracy, loss, graph = train_results.get()[0] <br>
 File "C:\Users\user\AppData\Local\Programs\Python\Python36\
 \lib\multiprocessing\pool.py", line 644, in get
 raise self._value <br>
-TypeError: 'float' object cannot be interpreted as an integer". Don't be mislead into thinking that the problem is related
+TypeError: 'float' object cannot be interpreted as an integer". <br>
+ Don't be mislead into thinking that the problem is related
 to the multiprocessing API, it simply refers to explicitly casting values in the tuple
 'self.padding' as int (C:\Users\user\AppData\Local\Programs\Python\Python36\site-packages\torch\nn\modules\conv.py at 
 line 301 before calling the function F.conv2d with appropriate parameters)
@@ -39,4 +42,5 @@ File "C:\Users\user\AppData\Local\Programs\Python\Python36\
 \lib\multiprocessing\pool.py", line 644, in get
 raise self._value <br>
 multiprocessing.pool.MaybeEncodingError: error sending result '[(98.08, tensor=(2.3784, device='cuda:0'), <autokeras.graph.Graph.object at 0x000002821B58E668>)]' <br>
-Reason: 'RuntimeError('cuda runtime error (71) : operation not supported at c:\\new-builder_3\\win-wheel\\pytorch\\torch\\csrc\\generic\\StorageSharing.cpp:231',)'
+Reason: 'RuntimeError('cuda runtime error (71) : operation not supported at c:\\new-builder_3\\win-wheel\\pytorch\\torch\\csrc\\generic\\StorageSharing.cpp:231',)' <br>
+Unfortunately it looks like multiprocessing and PyTorch do not seem to work well together. A hack to this problem is to replace the line:
