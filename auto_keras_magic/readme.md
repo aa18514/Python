@@ -23,7 +23,8 @@ accuracy, loss, graph = train_results.get()[0] <br>
 File "C:\Users\user\AppData\Local\Programs\Python\Python36\
 \lib\multiprocessing\pool.py", line 644, in get
 raise self._value <br>
-TypeError: 'float' object cannot be interpreted as an integer". One possible solution to the problem is to explicitly cast values in the tuple
+TypeError: 'float' object cannot be interpreted as an integer". Don't be mislead into thinking that the problem is related
+to the multiprocessing API, it simply refers to explicitly casting values in the tuple
 'self.padding' as int (C:\Users\user\AppData\Local\Programs\Python\Python36\site-packages\torch\nn\modules\conv.py at 
 line 301 before calling the function F.conv2d with appropriate parameters)
 
