@@ -10,10 +10,11 @@ The train test split was kept at 80:20. <br>
 
 ## Results
 Train accuracy of 94.579% and Test Accuracy of 98.125% was achieved on the data-set. <br>
-Average Precision, Recall and F1-score were at 98%, 99%, and 98% respectively. The total support was 100 samples. <br>
+Average Precision, Recall and F1-score were at 98%, 99%, and 98% respectively. The total support was 320 samples. <br>
 The classification report containing average precision, recall, f1-score and total support along with the precision, recall, f1-score and support for each class is given in
 the file 'classification_report.csv'. <br>
-The training process took place for around 29 epochs and ~89.906 seconds.
+The training process took place for around 29 epochs and ~89.906 seconds. <br>
+Optimal batch size was found to be 128. <br>
 
 ## Issues
 At this point in time, there are some issues with the Windows version of
