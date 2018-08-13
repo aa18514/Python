@@ -34,7 +34,7 @@ to the multiprocessing API, it simply refers to explicitly casting values in the
 'self.padding' as int (C:\Users\user\AppData\Local\Programs\Python\Python36\site-packages\torch\nn\modules\conv.py at 
 line 301 before calling the function F.conv2d with appropriate parameters)
 
-* After fixing the former error, when you run the 'olivetti_faces.py' script again, the program will fail with the following information
+* After fixing the former error, when you run the 'auto_keras_magic.py' script again, the program will fail with the following information
 "Traceback (most recent call last):
 <br>... <br>
 THCudaCheck FAIL file=c:\new-builder_3\win-wheel\pytorch\torch\csrc\generic\StorageSharing.cpp line 231 error 71: operation not supported 
