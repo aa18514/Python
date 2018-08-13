@@ -12,10 +12,19 @@ Because data was sampled from 40 individuals and each class only had 10 samples,
 The train test split was kept at 80:20. <br>
 
 ## Results
+
 <br>
+|  | Mean Test Bias | Mean Train Bias | Mean Test Variance | Mean Train Variance | time (s) |
+| :---: | :-: | :-: | :-:| :-: | :-: |
+| **Unregularized (Original Features)**  | 1.932715 | 0.564595 | 2.416220 | 0.130706  | 006.669397 |
+| **Regularized (Original Features)**    | 1.889901 | 0.572407 | 2.276397 | 0.129983  | 476.689539 |
+| **Regularized (Transformed Features)** | 3.869358 | 0.297641 | 5.153465 | 0.068069  | 2100.70408 |
+
+<br>
+
 | Dataset | Train Accuracy | Test Accuracy | Average Precision | Average Recall | Total Support | Epochs | Time Taken (s)
 | :-: | :-: | :-: | :-:| :-: | :-: | :-: | :-: |
-| [Olivetti Faces Dataset](http://scikit-learn.org/stable/datasets/olivetti_faces.html) | 94.393 | 95.938 | 96 | 97  | 96 | 320 | 46 | 96.859
+| [Olivetti Faces Dataset](http://scikit-learn.org/stable/datasets/olivetti_faces.html) | 94.393 | 95.938 | 96 | 97 | 96 | 320 | 46 | 96.859
 
 The classification report containing average precision, recall, f1-score and total support along with the precision, recall, f1-score and support for each class is given in
 the file 'classification_report.csv'. <br>
