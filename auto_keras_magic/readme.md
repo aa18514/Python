@@ -13,7 +13,7 @@ The train test split was kept at 80:20. <br>
 
 ## Results
 
-| Dataset | Train Accuracy (%) | Test Accuracy (%) | Average Precision (%) | Average Recall (%) | Total Support (%) | Epochs | Time Taken (s) | Batch Size
+| Dataset | Train Accuracy (%) | Test Accuracy (%) | Average Precision (%) | Average Recall (%) | Average F1 Score (%) | Total Support | Epochs | Time Taken (s) | Batch Size |
 | :-: | :-: | :-: | :-:| :-: | :-: | :-: | :-: | :-: |
 | [Olivetti Faces Dataset](http://scikit-learn.org/stable/datasets/olivetti_faces.html) | 94.393 | 95.938 | 96 | 97 | 96 | 320 | 46 | 96.859 | 128 |
 
