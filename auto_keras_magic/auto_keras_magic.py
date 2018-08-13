@@ -33,14 +33,14 @@ def classification_report_csv(report: classification_report, path: str)->(classi
     lines = report.split('\n')
     for line in lines[2:-3]:
         row = {}
-        row_data = line.split('      ') 
+        row_data = line.split('     ') 
         row['class'] = row_data[1]
         row['precision'] = float(row_data[2])
         row['recall'] = float(row_data[3])
         row['f1_score'] = float(row_data[4])
         row['support'] = float(row_data[5])
         report_data.append(row)
-    row_data = lines[-2].split('      ')
+    row_data = lines[-2].split('    ')
     row = {}
     row['class'] = row_data[0]
     row['precision'] = float(row_data[1])
@@ -72,14 +72,23 @@ def olivetti_faces(test_split: int)->int:
 if __name__ == "__main__":
     #(X_train, y_train), (X_test, y_test) = olivetti_faces(0.20)
     #(X_train, y_train), (X_test, y_test) = load_mnist()
-    (X_train, y_train), (X_test, y_test) = cifar10.load_data()
-    clf = ak.ImageClassifier(verbose=True)
+    (X_train, y_train), (X_test, y_test) = cifar100.load_data()
+    X_train = X_train/255
+    X_test = X_test/255
+    print(X_train.shape)
+    print(y_test.flatten())
+    clf = ak.ImageClassifier(verbose=True, augment=True)
     start_time = datetime.datetime.now()
-    model = clf.fit(X_train, y_train, time_limit=10)
+    model = clf.fit(X_train, y_train.flatten())
     end_time = datetime.datetime.now()
     print("fit took %f seconds" % (end_time - start_time).total_seconds())
     y_pred = clf.predict(X_test)
-    test_accuracy = np.sum(y_pred == y_test)
+    print(y_pred)
+    print(y_test)
+    test_accuracy = np.sum(y_pred == y_test.flatten())
+    print("this is test accuracy")
+    print(test_accuracy)
+    print(len(y_pred))
     test_accuracy = 100 * test_accuracy/len(y_pred)
     print("test accuracy %f: " % test_accuracy)
     report = classification_report(y_test, y_pred)
