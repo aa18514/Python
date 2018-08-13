@@ -27,6 +27,7 @@ the file 'classification_report.csv'. <br>
 * It seems like AutoKeras does not support architectures such as ResNet.
 * Cifar-100 suffers from very low test and train performance as compared to the baseline model
 * There is limited support in Keras for things like plotting the 'ROC Curve' with multiple classes
+* Things such as transfer learning become more difficult to achieve
 
 ## Issues
 At this point in time, there are some issues with the Windows version of
