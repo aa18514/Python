@@ -15,7 +15,7 @@ The train test split was kept at 80:20. <br>
 
 | Dataset | Train Accuracy (%) | Test Accuracy (%) | Average Precision (%) | Average Recall (%) | Total Support (%) | Epochs | Time Taken (s) | Batch Size
 | :-: | :-: | :-: | :-:| :-: | :-: | :-: | :-: | :-: |
-| [Olivetti Faces Dataset](http://scikit-learn.org/stable/datasets/olivetti_faces.html) | 94.393 | 95.938 | 96 | 97 | 96 | 320 | 46 | 96.859 | 128
+| [Olivetti Faces Dataset](http://scikit-learn.org/stable/datasets/olivetti_faces.html) | 94.393 | 95.938 | 96 | 97 | 96 | 320 | 46 | 96.859 | 128 |
 
 The classification report containing average precision, recall, f1-score and total support along with the precision, recall, f1-score and support for each class is given in
 the file 'classification_report.csv'. <br>
