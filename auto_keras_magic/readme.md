@@ -12,11 +12,13 @@ Because data was sampled from 40 individuals and each class only had 10 samples,
 The train test split was kept at 80:20. <br>
 
 ## Results
-Train accuracy of 94.393% and Test Accuracy of 95.938% was achieved on the data-set. <br>
-Average Precision, Recall and F1-score were at 96%, 97%, and 96% respectively. The total support was 320 samples. <br>
+<br>
+| Dataset | Train Accuracy | Test Accuracy | Average Precision | Average Recall | Total Support | Epochs | Time Taken (s)
+| :-: | :-: | :-: | :-:| :-: | :-: | :-: | :-: |
+| [Olivetti Faces Dataset](http://scikit-learn.org/stable/datasets/olivetti_faces.html) | 94.393 | 95.938 | 96 | 97  | 96 | 320 | 46 | 96.859
+
 The classification report containing average precision, recall, f1-score and total support along with the precision, recall, f1-score and support for each class is given in
 the file 'classification_report.csv'. <br>
-The training process took place for around 46 epochs and ~96.859 seconds. <br>
 Optimal batch size was found to be 128. <br>
 
 ## Issues
