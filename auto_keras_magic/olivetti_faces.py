@@ -6,9 +6,27 @@ from sklearn.datasets import fetch_mldata
 from sklearn.datasets import fetch_olivetti_faces
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.metrics import classification_report
+from sklearn.metrics import roc_curve
 import datetime
 
+def pre_process(x, y):
+    x_mod = list(x)
+    y_mod = list(y)
+    for i in range(len(y)):
+        for j in range(1, 4):
+            x_mod.append(np.rot90(x[i], j))
+            y_mod.append(y[i])
+    return np.array(x_mod),\
+            np.array(y_mod)
+
 def classification_report_csv(report: classification_report, path: str)->(classification_report, str):
+    """
+    inspiration taken from: https://stackoverflow.com/questions/39662398/scikit-learn-output-metrics-classification-
+    report-into-csv-tab-delimited-format
+    :param report: sklearn classification_report object to be parsed in a csv file
+    :param path: path where the csv file should be written to
+    :return: void
+    """
     report_data = []
     lines = report.split('\n')
     for line in lines[2:-3]:
@@ -31,16 +49,22 @@ def classification_report_csv(report: classification_report, path: str)->(classi
     dataframe = pd.DataFrame.from_dict(report_data)
     dataframe.to_csv(path, index=False)
 
-if __name__ == "__main__":
+
+def olivetti_faces():
     olivetti_faces = fetch_olivetti_faces()
     x, y = olivetti_faces['data'], olivetti_faces['target']
     x = x.reshape(len(y), 64, 64)
+    x, y = pre_process(x, y)
+    return x, y
+
+if __name__ == "__main__":
+    x, y = olivetti_faces()
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
     X_train = X_train.reshape(X_train.shape + (1,))
     X_test = X_test.reshape(X_test.shape + (1,))
     clf = ak.ImageClassifier(verbose=True)
     start_time = datetime.datetime.now()
-    clf.fit(X_train, y_train, time_limit=10)
+    model = clf.fit(X_train, y_train, time_limit=10)
     end_time = datetime.datetime.now()
     print("fit took %f seconds" % (end_time - start_time).total_seconds())
     y_pred = clf.predict(X_test)
