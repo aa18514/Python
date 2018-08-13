@@ -6,7 +6,9 @@ from sklearn.datasets import fetch_mldata
 from sklearn.datasets import fetch_olivetti_faces
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.metrics import classification_report
-from sklearn.metrics import roc_curve
+from keras.datasets import mnist
+from keras.datasets import cifar10
+from keras.datasets import cifar100
 import datetime
 
 def pre_process(x, y):
@@ -59,7 +61,8 @@ def olivetti_faces(test_split: int)->int:
     return (X_train, y_train), (X_test, y_test)
 
 if __name__ == "__main__":
-    (X_train, y_train), (X_test, y_test) = olivetti_faces(0.20)
+    #(X_train, y_train), (X_test, y_test) = olivetti_faces(0.20)
+    (X_train, y_train), (X_test, y_test) = mnist.load_data()
     X_train = X_train.reshape(X_train.shape + (1,))
     X_test = X_test.reshape(X_test.shape + (1,))
     clf = ak.ImageClassifier(verbose=True)
