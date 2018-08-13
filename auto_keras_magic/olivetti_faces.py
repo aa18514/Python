@@ -50,16 +50,16 @@ def classification_report_csv(report: classification_report, path: str)->(classi
     dataframe.to_csv(path, index=False)
 
 
-def olivetti_faces():
+def olivetti_faces(test_split: int)->int:
     olivetti_faces = fetch_olivetti_faces()
     x, y = olivetti_faces['data'], olivetti_faces['target']
     x = x.reshape(len(y), 64, 64)
     x, y = pre_process(x, y)
-    return x, y
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=test_split)
+    return (X_train, y_train), (X_test, y_test)
 
 if __name__ == "__main__":
-    x, y = olivetti_faces()
-    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
+    (X_train, y_train), (X_test, y_test) = olivetti_faces(0.20)
     X_train = X_train.reshape(X_train.shape + (1,))
     X_test = X_test.reshape(X_test.shape + (1,))
     clf = ak.ImageClassifier(verbose=True)
