@@ -23,6 +23,11 @@ The train test split was kept at 80:20. <br>
 The classification report containing average precision, recall, f1-score and total support along with the precision, recall, f1-score and support for each class is given in
 the file 'classification_report.csv'. <br>
 
+## Limitations
+* It seems like AutoKeras does not support architectures such as ResNet.
+* Cifar-100 suffers from very low test and train performance as compared to the baseline model
+* There is limited support in Keras for things like plotting the 'ROC Curve' with multiple classes
+
 ## Issues
 At this point in time, there are some issues with the Windows version of
 Auto-Keras given that you use 'CUDA' device instead of 'CPU'. It was 
